@@ -13,6 +13,10 @@ from torch.hub import _get_torch_home
 
 from .semseg_wrapper import SemSegWrapper
 from .utils import get_args_parser, get_config_path, get_checkpoint_path, get_results
+
+import sys
+sys.path.append("/home/ma/ma_ma/ma_dschader/workspaces/pfs7wor9/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation")
+
 from mmsegmentation.tools.test import main
 
 
