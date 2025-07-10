@@ -60,7 +60,7 @@ def load_model(model_name: str, backbone: str, dataset: str, crop_size: str = No
                 if file.startswith(model_name) and file.endswith(".pth"):
                     # move the checkpoint to checkpoints/model_name/
                     ckpt_path = os.path.join(torch_ckpt_dir, file)
-                    target_dir = os.path.join("checkpoints", model_name)
+                    target_dir = os.path.join("semantic_segmentation/checkpoints", model_name)
                     os.makedirs(target_dir, exist_ok=True)
                     new_ckpt_path = os.path.join(target_dir, file)
                     shutil.move(ckpt_path, new_ckpt_path)
