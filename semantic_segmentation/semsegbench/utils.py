@@ -28,7 +28,7 @@ def get_config_path(model_name: str, backbone: str, dataset: str, crop_size: str
     if backbone and 'resnet' in backbone:
         backbone = backbone.replace('resnet', 'r')
 
-    architecture_config_path = Path(f"mmsegmentation/configs/{model_name}")
+    architecture_config_path = Path(f"semantic_segmentation/mmsegmentation/configs/{model_name}")
     if not architecture_config_path.is_dir():
         raise FileNotFoundError(f"No config directory found for model '{model_name}'")
     
