@@ -53,7 +53,7 @@ def get_checkpoint_path(model_name: str, backbone: str, dataset: str, crop_size:
         backbone = backbone.replace('resnet', 'r')
 
     # search for checkpoint file
-    checkpoint_files_path = Path(f"checkpoints/{model_name}")
+    checkpoint_files_path = Path(f"semantic_segmentation/checkpoints/{model_name}")
     if not checkpoint_files_path.is_dir():
         raise FileNotFoundError(f"No checkpoint directory for model '{model_name}'")
 
