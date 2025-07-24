@@ -6,7 +6,7 @@ semantic_segmentation/clean_workdir
 semantic_segmentation/checkpoints
 semantic_segmentation/data
 semantic_segmentation/slurm
-semantic_segmentation/tests
+# semantic_segmentation/tests
 semantic_segmentation/work_dirs
 
 # C extensions
