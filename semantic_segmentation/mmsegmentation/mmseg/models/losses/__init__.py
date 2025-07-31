@@ -3,6 +3,7 @@ from .accuracy import Accuracy, accuracy
 from .boundary_loss import BoundaryLoss
 from .cross_entropy_loss import (CrossEntropyLoss, binary_cross_entropy,
                                  cross_entropy, mask_cross_entropy)
+from .evidential_loss import EvidentialMSELoss
 from .dice_loss import DiceLoss
 from .focal_loss import FocalLoss
 from .huasdorff_distance_loss import HuasdorffDisstanceLoss
@@ -17,5 +18,5 @@ __all__ = [
     'mask_cross_entropy', 'CrossEntropyLoss', 'reduce_loss',
     'weight_reduce_loss', 'weighted_loss', 'LovaszLoss', 'DiceLoss',
     'FocalLoss', 'TverskyLoss', 'OhemCrossEntropy', 'BoundaryLoss',
-    'HuasdorffDisstanceLoss', 'SiLogLoss'
+    'HuasdorffDisstanceLoss', 'SiLogLoss', 'EvidentialMSELoss'
 ]

@@ -41,8 +41,15 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction="none")), # added reduction='none', if error on loss -> line before `loss.backward()`, add loss=loss.mean()
+            # old version: type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction="none" # added reduction='none', if error on loss -> line before `loss.backward()`, add loss=loss.mean()
+            type='EvidentialMSELoss', loss_weight = 1.0, kl_strength = 1.0, reduction = "none"
+            )
+    ),
     train_cfg=dict(),
     test_cfg=dict(mode='whole'),
     attack_loss=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction='none'),)
+            # old version: type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction='none'
+            type='EvidentialMSELoss', loss_weight = 1.0, kl_strength = 1.0, reduction = "none"
+    ),
+
+)

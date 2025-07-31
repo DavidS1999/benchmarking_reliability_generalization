@@ -65,22 +65,27 @@ def plot_imshow(array, fig_name):
     plt.savefig(f"../tests/imgs/{fig_name}.png")
     plt.close()
 
-def get_uncertainty_map(model, img_path, n_runs:int = 11):
+def get_uncertainty_map(model, img_path, n_runs:int = 11, return_logits = False):
     
     softmax_preds = []
     pred_sem_segs = []
+    logits = []
     
     for _ in tqdm(range(n_runs), desc = "predicting..."):
         result = inference_model(model, str(img_path))
         probs = torch.softmax(result.seg_logits.data, dim = 0)
         softmax_preds.append(probs)
         pred_sem_segs.append(result.pred_sem_seg.data)
+        logits.append(result.seg_logits.data)
     
     softmax_preds = torch.stack(softmax_preds)
     uncertainty_dict = calculate_uncertainty(softmax_preds)
 
     uc_map = uncertainty_dict["epistemic_uncertainty"]
-    return uc_map
+    if return_logits:
+        return uc_map, logits
+    else:
+        return uc_map
 
 args = get_args_parser()
 config_path = Path("configs/segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py")
@@ -92,40 +97,32 @@ model = init_model(str(config_path), str(checkpoint_path))
 model.eval()
 activate_dropout(model)
 
-# outputs = []
-# for _ in tqdm(range(11), desc = "predicting..."):
-#     outputs.append(inference_model(model, str(img_path)).pred_sem_seg.data.cpu())
-# predictions = torch.stack(outputs)
+uc_map, logits = get_uncertainty_map(model, img_path, return_logits = True)
+pdb.set_trace()
 
-# # count for each pixel how many times it was classified as eg class 2 --> at index 2
-# class_counts = torch.stack([(predictions == class_i).sum(dim=0) for class_i in range(19)])
-# max_class_counts, _ = class_counts.max(dim=-1)
-# uncertainty_map = max_class_counts.float() / predictions.shape[0]
+# e = F.softplus(logits)
+# alpha = e + 1
+# S = torch.sum(alpha, dim=0, keepdim=True)
+# probs = alpha/S
+# uncertainty = 19 / (S+1)
 
-softmax_preds = []
-pred_sem_segs = []
+uc_differences = {"uc_map": [], "uc_max": [], "uc_argmax": [], "uc_mean": []}
+for i in range(10):
+    uc_map = get_uncertainty_map(model, img_path)
 
-for _ in tqdm(range(11), desc = "predicting..."):
-    result = inference_model(model, str(img_path))
-    probs = torch.softmax(result.seg_logits.data, dim = 0)
-    softmax_preds.append(probs)
-    pred_sem_segs.append(result.pred_sem_seg.data)
-                             
+    uc_max = uc_map.max()
+    uc_argmax = (uc_map == uc_max).nonzero()
+    uc_mean = uc_map.mean()
 
-# data, _ = _preprare_data(img_path)
-# data = model.data_preprocessor(data, False)
+    uc_differences["uc_map"].append(uc_map)
+    uc_differences["uc_max"].append(uc_max.item())
+    pdb.set_trace()
+    uc_differences["uc_argmax"].append(uc_argmax.cpu().numpy())
+    uc_differences["uc_mean"].append(uc_mean.item())
 
-# softmax_preds = []
-# with torch.no_grad():
-#     for _ in tqdm(range(11), desc = "predicting..."):
-#         output = model.forward(data, return_loss = False)[0].seg_logits
-#         probs = F.softmax(output.squeeze(0), dim = 0)
-#         softmax_preds.append(probs.cpu())
-
-softmax_preds = torch.stack(softmax_preds)
-
-
-uncertainty_dict = calculate_uncertainty(softmax_preds)
+print("ux_max:", uc_differences["uc_max"])
+print("uc_argmax:", uc_differences["uc_argmax"])
+print("uc_mean:", uc_differences["uc_mean"])
 
 pdb.set_trace()
 print("end")
