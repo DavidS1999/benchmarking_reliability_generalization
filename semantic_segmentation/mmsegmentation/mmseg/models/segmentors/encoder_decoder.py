@@ -432,6 +432,8 @@ class EncoderDecoder(BaseSegmentor):
     def predict(self,
                 inputs: Tensor,
                 data_samples: OptSampleList = None) -> SampleList:
+        import pdb
+        # pdb.set_trace()
         """Predict results from a batch of inputs and data samples with post-
         processing.
 
@@ -482,17 +484,18 @@ class EncoderDecoder(BaseSegmentor):
         # import pdb
         # pdb.set_trace()
 
-        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if not self.enable_normalization else torch.nn.Identity()
+        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if self.enable_normalization else torch.nn.Identity()
         
         
         if self.perform_attack:
+            print("perform attack")
             if self.attack_cfg['name']=='apgd':
                 inputs = self.apgd(model = self.inference, normalize_inputs=normalize, batch_img_metas = batch_img_metas, data_samples=data_samples, n_iter=self.attack_cfg['iterations'], x = inputs/255., y = data_samples[-1].gt_sem_seg, device = inputs.device, eps=epsilon/255.)
             else:
                 orig_inputs = inputs.clone().detach()
                 
                 # import pdb
-                # pdb.set_trace()
+                pdb.set_trace()
                 if 'pgd' in self.attack_cfg['name']:
                     if self.attack_cfg['norm'] == 'linf':
                         inputs = attack.init_linf(inputs, epsilon, clamp_min = 0, clamp_max=255)
@@ -515,6 +518,8 @@ class EncoderDecoder(BaseSegmentor):
 
                         if 'decode.loss_ce' in loss_temp:
                             loss = loss_temp['decode.loss_ce']
+                        elif 'decode.loss_evidential' in loss_temp:
+                            loss = loss_temp['decode.loss_evidential']
                         elif 'decode.loss_dice' in loss_temp:
                             loss = loss_temp['decode.loss_dice']
                         elif 'decode.loss_boundary' in loss_temp:

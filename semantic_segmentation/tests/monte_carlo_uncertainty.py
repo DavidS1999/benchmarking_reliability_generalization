@@ -11,6 +11,8 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from glob import glob
+import numpy as np
 import pdb
 
 # from VALUES
@@ -58,10 +60,14 @@ def activate_dropout(model):
         if layer.__class__.__name__.startswith("Dropout"):
             layer.train()
 
-def plot_imshow(array, fig_name):
+def plot_imshow(array, fig_name, fig_title = None):
     plt.figure()
     plt.imshow(array, cmap = "gray")
     plt.colorbar()
+    plt.axis("off")
+    if fig_title:
+        plt.title(fig_title)
+    plt.tight_layout()
     plt.savefig(f"../tests/imgs/{fig_name}.png")
     plt.close()
 
@@ -87,6 +93,27 @@ def get_uncertainty_map(model, img_path, n_runs:int = 11, return_logits = False)
     else:
         return uc_map
 
+def get_uc_score(uc_map, top_k_percent: float = 0.05):
+
+    mean_uc = uc_map.mean().item()
+    median_uc = uc_map.median().item()
+    max_uc = uc_map.max().item()
+
+    # top k percent
+    flattened = uc_map.flatten()
+    k = int(len(flattened) * top_k_percent)
+    top_k = flattened.sort().values[-k:]
+    top_k_mean = top_k.mean().item()
+
+    output = {"mean_uc": mean_uc,
+              "median_uc": median_uc,
+              "max_uc": max_uc,
+              "top_k_mean": top_k_mean}
+    
+    return output
+
+
+
 args = get_args_parser()
 config_path = Path("configs/segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py")
 checkpoint_path = Path("../checkpoints/segformer/segformer_mit-b0_8x1_1024x1024_160k_cityscapes_20211208_101857-e7f88502.pth")
@@ -97,8 +124,27 @@ model = init_model(str(config_path), str(checkpoint_path))
 model.eval()
 activate_dropout(model)
 
-uc_map, logits = get_uncertainty_map(model, img_path, return_logits = True)
-pdb.set_trace()
+# uc_map, logits = get_uncertainty_map(model, img_path, return_logits = True)
+
+acdc_path = Path("data/acdc/rgb_anno/test")
+cityscapes_path = Path("data/cityscapes/leftImg8bit/test/berlin")
+for i, img_path in enumerate(cityscapes_path.iterdir()):
+    if i == 5:
+        break
+    uc_map, logits = get_uncertainty_map(model, img_path, return_logits = True)
+    uc_score = get_uc_score(uc_map.cpu())
+    title = ""
+    for uc_score_label, uc_score_item in uc_score.items():
+        title += uc_score_label + ": " + str(round(uc_score_item, 3)) + ",\n"
+    title = title[:-3]
+    plot_imshow(uc_map.cpu(),
+                fig_name =  f"/aa/{img_path.stem}_uc",
+                fig_title = title)
+
+
+
+# get some acdc uncertainties
+
 
 # e = F.softplus(logits)
 # alpha = e + 1
@@ -106,23 +152,23 @@ pdb.set_trace()
 # probs = alpha/S
 # uncertainty = 19 / (S+1)
 
-uc_differences = {"uc_map": [], "uc_max": [], "uc_argmax": [], "uc_mean": []}
-for i in range(10):
-    uc_map = get_uncertainty_map(model, img_path)
+# uc_differences = {"uc_map": [], "uc_max": [], "uc_argmax": [], "uc_mean": []}
+# for i in range(10):
+#     uc_map = get_uncertainty_map(model, img_path)
 
-    uc_max = uc_map.max()
-    uc_argmax = (uc_map == uc_max).nonzero()
-    uc_mean = uc_map.mean()
+#     uc_max = uc_map.max()
+#     uc_argmax = (uc_map == uc_max).nonzero()
+#     uc_mean = uc_map.mean()
 
-    uc_differences["uc_map"].append(uc_map)
-    uc_differences["uc_max"].append(uc_max.item())
-    pdb.set_trace()
-    uc_differences["uc_argmax"].append(uc_argmax.cpu().numpy())
-    uc_differences["uc_mean"].append(uc_mean.item())
+#     uc_differences["uc_map"].append(uc_map)
+#     uc_differences["uc_max"].append(uc_max.item())
+#     pdb.set_trace()
+#     uc_differences["uc_argmax"].append(uc_argmax.cpu().numpy())
+#     uc_differences["uc_mean"].append(uc_mean.item())
 
-print("ux_max:", uc_differences["uc_max"])
-print("uc_argmax:", uc_differences["uc_argmax"])
-print("uc_mean:", uc_differences["uc_mean"])
+# print("ux_max:", uc_differences["uc_max"])
+# print("uc_argmax:", uc_differences["uc_argmax"])
+# print("uc_mean:", uc_differences["uc_mean"])
 
 pdb.set_trace()
 print("end")

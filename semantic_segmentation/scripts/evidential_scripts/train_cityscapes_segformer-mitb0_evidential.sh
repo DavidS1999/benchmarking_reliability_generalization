@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-#SBATCH --time=05:00:00
+#SBATCH --time=03:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --partition=gpu_h100
 #SBATCH --gres=gpu:1
-#SBATCH --mem=10G
+#SBATCH --mem=4G
 #SBATCH --cpus-per-task=8
-#SBATCH --job-name=train_cityscapes_segformer_mitb0_evidential
-#SBATCH --output=slurm/evidential/train_cityscapes_segformer_mitb0_evidential.out
+#SBATCH --job-name=train_cityscapes_segformer_mitb0_crossentropy
+#SBATCH --output=slurm/evidential/train_cityscapes_segformer_mitb0_crossentropy.out
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=david.schader@students.uni-mannheim.de
 

@@ -20,23 +20,29 @@ class EvidentialMSELoss(nn.Module):
                  kl_strength = 1.0,
                  reduction='mean',
                  loss_name='loss_evidential',
+                 ignore_index = 255,
                  ):
         super().__init__()
         self.loss_weight = loss_weight
         self.kl_strength = kl_strength
         self.reduction = reduction
         self._loss_name = loss_name
+        self.ignore_index = ignore_index
     
     def forward(self,
                 pred,
                 target,
                 weight=None,
                 avg_factor=None, # TODO ?
-                reduction="mean",
-                ignore_index=255,
+                reduction=None,
+                ignore_index=None,
                 **kwargs):
         """Forward function."""
+        import pdb
         # pdb.set_trace()
+
+        reduction = self.reduction if reduction is None else reduction
+        ignore_index = self.ignore_index if ignore_index is None else ignore_index
 
         evidence = F.softplus(pred)
         alpha = evidence + 1
@@ -61,15 +67,21 @@ class EvidentialMSELoss(nn.Module):
 
         loss = mse + kl
 
+        if weight is not None:
+            loss = loss*weight # TODO check dimensions
+
+        if reduction == "none":
+            loss = loss
         if reduction == "mean":
-            loss = loss.mean()
+            valid = valid_mask[:, 0, ...]
+            denom = valid.sum().clamp_min(1.0) # don't divide by zero
+            loss = (loss*valid).sum() / denom
         elif reduction == "sum":
             loss = loss.sum()
         
         return self.loss_weight * loss
     
     def _kl_dirichlet(self, alpha):
-        # pdb.set_trace()
         """KL divergence to uniform Dirichlet (1,...,1)"""
         K = alpha.shape[1]
         beta = torch.ones_like(alpha)
@@ -102,4 +114,6 @@ class EvidentialMSELoss(nn.Module):
         """
         return self._loss_name
 
+    def extra_repr(self):
+        return f'kl_strength={self.kl_strength}, loss_weight={self.loss_weight}, reduction={self.reduction}, ignore_index={self.ignore_index}, loss_name="{self._loss_name}"'
 
