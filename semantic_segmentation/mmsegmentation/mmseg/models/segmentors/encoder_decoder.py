@@ -416,6 +416,10 @@ class EncoderDecoder(BaseSegmentor):
             dict[str, Tensor]: a dictionary of loss components
         """
 
+        # shift normalize from data_preprocessor to loss/predict
+        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if not self.enable_normalization else torch.nn.Identity()
+        inputs = normalize(inputs)
+
         x = self.extract_feat(inputs)
 
         losses = dict()
@@ -484,6 +488,7 @@ class EncoderDecoder(BaseSegmentor):
         # import pdb
         # pdb.set_trace()
 
+        # shift normalize from data_preprocessor to loss/predict
         normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if not self.enable_normalization else torch.nn.Identity()
         
         

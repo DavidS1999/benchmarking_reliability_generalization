@@ -21,7 +21,7 @@ class EvidentialMSELoss(nn.Module):
                  reduction='mean',
                  loss_name='loss_evidential',
                  ignore_index = 255,
-                 kl_anneal_max_i = 10000, # increase kl strength linear
+                 kl_anneal_max_i = 32000, # increase kl strength linear
                  min_kl_factor = 0.
                  ):
         super().__init__()
@@ -54,7 +54,7 @@ class EvidentialMSELoss(nn.Module):
                 **kwargs):
         """Forward function."""
         import pdb
-        pdb.set_trace()
+        # pdb.set_trace()
 
         reduction = self.reduction if reduction is None else reduction
         ignore_index = self.ignore_index if ignore_index is None else ignore_index

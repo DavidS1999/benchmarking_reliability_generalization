@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-#SBATCH --time=03:30:00
+#SBATCH --time=05:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --partition=gpu_h100
+#SBATCH --partition=gpu_a100_il,gpu_h100
 #SBATCH --gres=gpu:1
 #SBATCH --mem=4G
 #SBATCH --cpus-per-task=8
-#SBATCH --job-name=train_cityscapes_segformer_mitb0_evidential
-#SBATCH --output=slurm/evidential/train_cityscapes_segformer_mitb0_evidential.out
+#SBATCH --job-name=train_cityscapes_segformer_mitb0_evidential_32000_annealing
+#SBATCH --output=slurm/evidential/train_cityscapes_segformer_mitb0_evidential_32000_annealing.out
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=david.schader@students.uni-mannheim.de
 
@@ -17,7 +17,7 @@ cd mmsegmentation
 
 module load devel/cuda/11.8
 
-python tools/train.py configs/segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py
+python tools/train.py configs/segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py --work-dir work_dirs/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024_kl_annealing_32000
 
 end=$('date +%s')
 runtime=$((end-start))

@@ -109,7 +109,7 @@ def inference_model(model: BaseSegmentor,
         will be returned, otherwise return the segmentation results directly.
     """
     # prepare data
-    data, is_batch = _preprare_data(img, model)
+    data, is_batch = _preprare_data_with_ann(img, model) # _prepare_data
 
     # forward the model
     with torch.no_grad():

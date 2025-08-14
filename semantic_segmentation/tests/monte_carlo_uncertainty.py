@@ -13,6 +13,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from glob import glob
 import numpy as np
+from mmseg.datasets.transforms import Compose
 import pdb
 
 # from VALUES
@@ -112,17 +113,26 @@ def get_uc_score(uc_map, top_k_percent: float = 0.05):
     
     return output
 
+def _prepare_data_with_ann(model, img_path, ann_path):
+    cfg = model.cfg
+    data = dict(img_path=img_path, seg_map_path=ann_path)
+    pipeline = Compose(cfg.test_pipeline)
+    return pipeline(data)
+
 
 
 args = get_args_parser()
 config_path = Path("configs/segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py")
 checkpoint_path = Path("../checkpoints/segformer/segformer_mit-b0_8x1_1024x1024_160k_cityscapes_20211208_101857-e7f88502.pth")
 img_path = Path("data/cityscapes/leftImg8bit/test/berlin/berlin_000000_000019_leftImg8bit.png")
-
+ann_path = Path("data/cityscapes/gtFine/test/berlin/berlin_000000_000019_gtFine_labelTrainIds.png")
 
 model = init_model(str(config_path), str(checkpoint_path))
 model.eval()
 activate_dropout(model)
+pdb.set_trace()
+result = inference_model(model, str(img_path))
+
 
 # uc_map, logits = get_uncertainty_map(model, img_path, return_logits = True)
 

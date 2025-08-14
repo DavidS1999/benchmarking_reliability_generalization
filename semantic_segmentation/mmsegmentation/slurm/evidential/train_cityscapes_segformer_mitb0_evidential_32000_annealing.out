@@ -1,0 +1,737 @@
+Started at Thu Aug 14 03:41:58 PM CEST 2025
+/var/spool/slurmd/job1126099/slurm_script: line 16: cd: mmsegmentation: No such file or directory
+08/14 15:42:45 - mmengine - INFO - 
+------------------------------------------------------------
+System environment:
+    sys.platform: linux
+    Python: 3.10.18 | packaged by conda-forge | (main, Jun  4 2025, 14:45:41) [GCC 13.3.0]
+    CUDA available: True
+    MUSA available: False
+    numpy_random_seed: 802452470
+    GPU 0: NVIDIA H100
+    CUDA_HOME: /opt/bwhpc/common/devel/cuda/11.8
+    NVCC: Cuda compilation tools, release 11.8, V11.8.89
+    GCC: gcc (GCC) 11.4.1 20231218 (Red Hat 11.4.1-4)
+    PyTorch: 2.0.0+cu118
+    PyTorch compiling details: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201703
+  - Intel(R) oneAPI Math Kernel Library Version 2022.2-Product Build 20220804 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v2.7.3 (Git Hash 6dbeffbae1f23cbbeae17adb7b5b13f1f37c080e)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - LAPACK is enabled (usually provided by MKL)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.8
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_90,code=sm_90
+  - CuDNN 8.7
+  - Magma 2.6.1
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CUDA_VERSION=11.8, CUDNN_VERSION=8.7.0, CXX_COMPILER=/opt/rh/devtoolset-9/root/usr/bin/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=0 -fabi-version=11 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wunused-local-typedefs -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_DISABLE_GPU_ASSERTS=ON, TORCH_VERSION=2.0.0, USE_CUDA=ON, USE_CUDNN=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=1, USE_NNPACK=ON, USE_OPENMP=ON, USE_ROCM=OFF, 
+
+    TorchVision: 0.15.1+cu118
+    OpenCV: 3.4.18
+    MMEngine: 0.10.7
+
+Runtime environment:
+    cudnn_benchmark: True
+    mp_cfg: {'mp_start_method': 'fork', 'opencv_num_threads': 0}
+    dist_cfg: {'backend': 'nccl'}
+    seed: 802452470
+    Distributed launcher: none
+    Distributed training: False
+    GPU number: 1
+------------------------------------------------------------
+
+08/14 15:42:46 - mmengine - INFO - Config:
+checkpoint = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b0_20220624-7e0fe6dd.pth'
+crop_size = (
+    1024,
+    1024,
+)
+data_preprocessor = dict(
+    bgr_to_rgb=True,
+    corruption=None,
+    enable_normalization=False,
+    mean=[
+        123.675,
+        116.28,
+        103.53,
+    ],
+    pad_val=0,
+    seg_pad_val=255,
+    size=(
+        1024,
+        1024,
+    ),
+    std=[
+        58.395,
+        57.12,
+        57.375,
+    ],
+    type='SegDataPreProcessor')
+data_root = 'data/cityscapes/'
+dataset_type = 'CityscapesDataset'
+default_hooks = dict(
+    checkpoint=dict(by_epoch=False, interval=16000, type='CheckpointHook'),
+    logger=dict(interval=50, log_metric_by_epoch=False, type='LoggerHook'),
+    param_scheduler=dict(type='ParamSchedulerHook'),
+    sampler_seed=dict(type='DistSamplerSeedHook'),
+    timer=dict(type='IterTimerHook'),
+    visualization=dict(type='SegVisualizationHook'))
+default_scope = 'mmseg'
+env_cfg = dict(
+    cudnn_benchmark=True,
+    dist_cfg=dict(backend='nccl'),
+    mp_cfg=dict(mp_start_method='fork', opencv_num_threads=0))
+img_ratios = [
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5,
+    1.75,
+]
+launcher = 'none'
+load_from = None
+log_level = 'INFO'
+log_processor = dict(by_epoch=False)
+model = dict(
+    attack_cfg=dict(
+        alpha=0.01, epsilon=8, iterations=20, name='pgd', norm='l2'),
+    attack_loss=dict(
+        kl_strength=1.0,
+        loss_weight=1.0,
+        reduction='none',
+        type='EvidentialMSELoss'),
+    backbone=dict(
+        attn_drop_rate=0.0,
+        drop_path_rate=0.1,
+        drop_rate=0.0,
+        embed_dims=32,
+        in_channels=3,
+        init_cfg=dict(
+            checkpoint=
+            'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b0_20220624-7e0fe6dd.pth',
+            type='Pretrained'),
+        mlp_ratio=4,
+        num_heads=[
+            1,
+            2,
+            5,
+            8,
+        ],
+        num_layers=[
+            2,
+            2,
+            2,
+            2,
+        ],
+        num_stages=4,
+        out_indices=(
+            0,
+            1,
+            2,
+            3,
+        ),
+        patch_sizes=[
+            7,
+            3,
+            3,
+            3,
+        ],
+        qkv_bias=True,
+        sr_ratios=[
+            8,
+            4,
+            2,
+            1,
+        ],
+        type='MixVisionTransformer'),
+    data_preprocessor=dict(
+        bgr_to_rgb=True,
+        corruption=None,
+        enable_normalization=False,
+        mean=[
+            123.675,
+            116.28,
+            103.53,
+        ],
+        pad_val=0,
+        seg_pad_val=255,
+        size=(
+            1024,
+            1024,
+        ),
+        std=[
+            58.395,
+            57.12,
+            57.375,
+        ],
+        type='SegDataPreProcessor'),
+    decode_head=dict(
+        align_corners=False,
+        channels=256,
+        dropout_ratio=0.1,
+        in_channels=[
+            32,
+            64,
+            160,
+            256,
+        ],
+        in_index=[
+            0,
+            1,
+            2,
+            3,
+        ],
+        loss_decode=dict(
+            kl_strength=1.0,
+            loss_weight=1.0,
+            reduction='mean',
+            type='EvidentialMSELoss'),
+        norm_cfg=dict(requires_grad=True, type='SyncBN'),
+        num_classes=19,
+        type='SegformerHead'),
+    normalize_mean_std=dict(
+        mean=[
+            123.675,
+            116.28,
+            103.53,
+        ], std=[
+            58.395,
+            57.12,
+            57.375,
+        ]),
+    perform_attack=False,
+    pretrained=None,
+    test_cfg=dict(crop_size=(
+        1024,
+        1024,
+    ), mode='slide', stride=(
+        768,
+        768,
+    )),
+    train_cfg=dict(),
+    type='EncoderDecoder')
+norm_cfg = dict(requires_grad=True, type='SyncBN')
+optim_wrapper = dict(
+    optimizer=dict(
+        betas=(
+            0.9,
+            0.999,
+        ), lr=6e-05, type='AdamW', weight_decay=0.01),
+    paramwise_cfg=dict(
+        custom_keys=dict(
+            head=dict(lr_mult=10.0),
+            norm=dict(decay_mult=0.0),
+            pos_block=dict(decay_mult=0.0))),
+    type='OptimWrapper')
+optimizer = dict(lr=0.01, momentum=0.9, type='SGD', weight_decay=0.0005)
+param_scheduler = [
+    dict(
+        begin=0, by_epoch=False, end=1500, start_factor=1e-06,
+        type='LinearLR'),
+    dict(
+        begin=1500,
+        by_epoch=False,
+        end=160000,
+        eta_min=0.0,
+        power=1.0,
+        type='PolyLR'),
+]
+resume = False
+test_cfg = dict(type='TestLoop')
+test_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        data_prefix=dict(
+            img_path='leftImg8bit/val', seg_map_path='gtFine/val'),
+        data_root='data/cityscapes/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(keep_ratio=True, scale=(
+                2048,
+                1024,
+            ), type='Resize'),
+            dict(type='LoadAnnotations'),
+            dict(type='PackSegInputs'),
+        ],
+        type='CityscapesDataset'),
+    num_workers=4,
+    persistent_workers=True,
+    sampler=dict(shuffle=False, type='DefaultSampler'))
+test_evaluator = dict(
+    iou_metrics=[
+        'mIoU',
+    ], type='IoUMetric')
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(keep_ratio=True, scale=(
+        2048,
+        1024,
+    ), type='Resize'),
+    dict(type='LoadAnnotations'),
+    dict(type='PackSegInputs'),
+]
+train_cfg = dict(
+    max_iters=160000, type='IterBasedTrainLoop', val_interval=16000)
+train_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        data_prefix=dict(
+            img_path='leftImg8bit/train', seg_map_path='gtFine/train'),
+        data_root='data/cityscapes/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='LoadAnnotations'),
+            dict(
+                keep_ratio=True,
+                ratio_range=(
+                    0.5,
+                    2.0,
+                ),
+                scale=(
+                    2048,
+                    1024,
+                ),
+                type='RandomResize'),
+            dict(
+                cat_max_ratio=0.75,
+                crop_size=(
+                    1024,
+                    1024,
+                ),
+                type='RandomCrop'),
+            dict(prob=0.5, type='RandomFlip'),
+            dict(type='PhotoMetricDistortion'),
+            dict(type='PackSegInputs'),
+        ],
+        type='CityscapesDataset'),
+    num_workers=4,
+    persistent_workers=True,
+    sampler=dict(shuffle=True, type='InfiniteSampler'))
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations'),
+    dict(
+        keep_ratio=True,
+        ratio_range=(
+            0.5,
+            2.0,
+        ),
+        scale=(
+            2048,
+            1024,
+        ),
+        type='RandomResize'),
+    dict(cat_max_ratio=0.75, crop_size=(
+        1024,
+        1024,
+    ), type='RandomCrop'),
+    dict(prob=0.5, type='RandomFlip'),
+    dict(type='PhotoMetricDistortion'),
+    dict(type='PackSegInputs'),
+]
+tta_model = dict(type='SegTTAModel')
+tta_pipeline = [
+    dict(backend_args=None, type='LoadImageFromFile'),
+    dict(
+        transforms=[
+            [
+                dict(keep_ratio=True, scale_factor=0.5, type='Resize'),
+                dict(keep_ratio=True, scale_factor=0.75, type='Resize'),
+                dict(keep_ratio=True, scale_factor=1.0, type='Resize'),
+                dict(keep_ratio=True, scale_factor=1.25, type='Resize'),
+                dict(keep_ratio=True, scale_factor=1.5, type='Resize'),
+                dict(keep_ratio=True, scale_factor=1.75, type='Resize'),
+            ],
+            [
+                dict(direction='horizontal', prob=0.0, type='RandomFlip'),
+                dict(direction='horizontal', prob=1.0, type='RandomFlip'),
+            ],
+            [
+                dict(type='LoadAnnotations'),
+            ],
+            [
+                dict(type='PackSegInputs'),
+            ],
+        ],
+        type='TestTimeAug'),
+]
+val_cfg = dict(type='ValLoop')
+val_dataloader = dict(
+    batch_size=1,
+    dataset=dict(
+        data_prefix=dict(
+            img_path='leftImg8bit/val', seg_map_path='gtFine/val'),
+        data_root='data/cityscapes/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(keep_ratio=True, scale=(
+                2048,
+                1024,
+            ), type='Resize'),
+            dict(type='LoadAnnotations'),
+            dict(type='PackSegInputs'),
+        ],
+        type='CityscapesDataset'),
+    num_workers=4,
+    persistent_workers=True,
+    sampler=dict(shuffle=False, type='DefaultSampler'))
+val_evaluator = dict(
+    iou_metrics=[
+        'mIoU',
+    ], type='IoUMetric')
+vis_backends = [
+    dict(type='LocalVisBackend'),
+]
+visualizer = dict(
+    name='visualizer',
+    type='SegLocalVisualizer',
+    vis_backends=[
+        dict(type='LocalVisBackend'),
+    ])
+work_dir = 'work_dirs/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024_kl_annealing_32000'
+
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/ops_dcnv3/modules/dcnv3.py:20: UserWarning: Now, we support DCNv4 in InternImage.
+  warnings.warn('Now, we support DCNv4 in InternImage.')
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/builder.py:36: UserWarning: ``build_loss`` would be deprecated soon, please use ``mmseg.registry.MODELS.build()`` 
+  warnings.warn('``build_loss`` would be deprecated soon, please use '
+Number of parameters:  3720051
+08/14 15:43:08 - mmengine - INFO - Distributed training is not used, all SyncBatchNorm (SyncBN) layers in the model will be automatically reverted to BatchNormXd layers if they are used.
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/engine/hooks/visualization_hook.py:60: UserWarning: The draw is False, it means that the hook for visualization will not take effect. The results will NOT be visualized or stored.
+  warnings.warn('The draw is False, it means that the '
+08/14 15:43:08 - mmengine - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+before_train:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) DistSamplerSeedHook                
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+after_train_iter:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) SegVisualizationHook               
+(BELOW_NORMAL) LoggerHook                         
+(LOW         ) ParamSchedulerHook                 
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) IterTimerHook                      
+(LOW         ) ParamSchedulerHook                 
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+before_val:
+(VERY_HIGH   ) RuntimeInfoHook                    
+ -------------------- 
+before_val_epoch:
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+before_val_iter:
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) SegVisualizationHook               
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+after_val_epoch:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(BELOW_NORMAL) LoggerHook                         
+(LOW         ) ParamSchedulerHook                 
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+after_val:
+(VERY_HIGH   ) RuntimeInfoHook                    
+ -------------------- 
+after_train:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(VERY_LOW    ) CheckpointHook                     
+ -------------------- 
+before_test:
+(VERY_HIGH   ) RuntimeInfoHook                    
+ -------------------- 
+before_test_epoch:
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+before_test_iter:
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+after_test_iter:
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) SegVisualizationHook               
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+after_test_epoch:
+(VERY_HIGH   ) RuntimeInfoHook                    
+(NORMAL      ) IterTimerHook                      
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+after_test:
+(VERY_HIGH   ) RuntimeInfoHook                    
+ -------------------- 
+after_run:
+(BELOW_NORMAL) LoggerHook                         
+ -------------------- 
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.0.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.0.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.0.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.0.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.0.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.0.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm1.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm1.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm1.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm1.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm1.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm1.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.attn.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.attn.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.attn.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.attn.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.attn.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.attn.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm2.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm2.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm2.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm2.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm2.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.0.norm2.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm1.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm1.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm1.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm1.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm1.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm1.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.attn.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.attn.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.attn.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.attn.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.attn.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.attn.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm2.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm2.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm2.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm2.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm2.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.0.1.1.norm2.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.0.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.0.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.0.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.0.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.0.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.0.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm1.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm1.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm1.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm1.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm1.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm1.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.attn.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.attn.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.attn.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.attn.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.attn.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.attn.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm2.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm2.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm2.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm2.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm2.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.0.norm2.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm1.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm1.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm1.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm1.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm1.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm1.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.attn.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.attn.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.attn.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.attn.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.attn.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.attn.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm2.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm2.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm2.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm2.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm2.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.1.1.1.norm2.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.0.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.0.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.0.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.0.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.0.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.0.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm1.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm1.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm1.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm1.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm1.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm1.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.attn.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.attn.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.attn.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.attn.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.attn.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.attn.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm2.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm2.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm2.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm2.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm2.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.0.norm2.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm1.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm1.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm1.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm1.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm1.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm1.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.attn.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.attn.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.attn.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.attn.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.attn.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.attn.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm2.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm2.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm2.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm2.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm2.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.2.1.1.norm2.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.0.norm.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.0.norm.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.0.norm.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.0.norm.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.0.norm.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.0.norm.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm1.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm1.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm1.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm1.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm1.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm1.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm2.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm2.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm2.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm2.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm2.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.0.norm2.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm1.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm1.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm1.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm1.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm1.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm1.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm2.weight:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm2.weight:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm2.weight:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm2.bias:lr=6e-05
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm2.bias:weight_decay=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- backbone.layers.3.1.1.norm2.bias:decay_mult=0.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.conv_seg.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.conv_seg.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.conv_seg.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.conv_seg.bias:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.conv_seg.bias:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.conv_seg.bias:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.conv.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.conv.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.conv.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.bn.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.bn.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.bn.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.bn.bias:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.bn.bias:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.0.bn.bias:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.conv.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.conv.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.conv.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.bn.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.bn.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.bn.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.bn.bias:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.bn.bias:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.1.bn.bias:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.conv.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.conv.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.conv.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.bn.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.bn.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.bn.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.bn.bias:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.bn.bias:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.2.bn.bias:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.conv.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.conv.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.conv.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.bn.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.bn.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.bn.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.bn.bias:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.bn.bias:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.convs.3.bn.bias:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.conv.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.conv.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.conv.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.bn.weight:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.bn.weight:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.bn.weight:lr_mult=10.0
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.bn.bias:lr=0.0006000000000000001
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.bn.bias:weight_decay=0.01
+08/14 15:43:09 - mmengine - INFO - paramwise_options -- decode_head.fusion_conv.bn.bias:lr_mult=10.0
+08/14 15:43:09 - mmengine - WARNING - The prefix is not set in metric class IoUMetric.
+08/14 15:43:11 - mmengine - INFO - load model from: https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b0_20220624-7e0fe6dd.pth
+08/14 15:43:11 - mmengine - INFO - Loads checkpoint by http backend from path: https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b0_20220624-7e0fe6dd.pth
+08/14 15:43:13 - mmengine - WARNING - "FileClient" will be deprecated in future. Please use io functions in https://mmengine.readthedocs.io/en/latest/api/fileio.html#file-io
+08/14 15:43:13 - mmengine - WARNING - "HardDiskBackend" is the alias of "LocalBackend" and the former will be deprecated in future.
+08/14 15:43:13 - mmengine - INFO - Checkpoints will be saved to /pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/work_dirs/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024_kl_annealing_32000.
+08/14 15:43:54 - mmengine - INFO - Iter(train) [    50/160000]  base_lr: 1.9614e-06 lr: 1.9614e-06  eta: 1 day, 12:49:17  time: 0.0532  data_time: 0.0050  memory: 6942  loss: 0.8469  decode.loss_evidential: 0.8469  decode.acc_seg: 26.4185
+08/14 15:43:57 - mmengine - INFO - Iter(train) [   100/160000]  base_lr: 3.9627e-06 lr: 3.9627e-06  eta: 19:34:28  time: 0.0525  data_time: 0.0046  memory: 3571  loss: 0.6651  decode.loss_evidential: 0.6651  decode.acc_seg: 21.0146
+08/14 15:43:59 - mmengine - INFO - Iter(train) [   150/160000]  base_lr: 5.9640e-06 lr: 5.9640e-06  eta: 13:49:33  time: 0.0525  data_time: 0.0044  memory: 3571  loss: 0.3422  decode.loss_evidential: 0.3422  decode.acc_seg: 24.6338
+08/14 15:44:02 - mmengine - INFO - Iter(train) [   200/160000]  base_lr: 7.9654e-06 lr: 7.9654e-06  eta: 10:57:05  time: 0.0524  data_time: 0.0044  memory: 3571  loss: -0.3253  decode.loss_evidential: -0.3253  decode.acc_seg: 30.0209
+08/14 15:44:05 - mmengine - INFO - Iter(train) [   250/160000]  base_lr: 9.9667e-06 lr: 9.9667e-06  eta: 9:13:52  time: 0.0530  data_time: 0.0045  memory: 3571  loss: -1.6175  decode.loss_evidential: -1.6175  decode.acc_seg: 2.6947
+08/14 15:44:07 - mmengine - INFO - Iter(train) [   300/160000]  base_lr: 1.1968e-05 lr: 1.1968e-05  eta: 8:05:14  time: 0.0532  data_time: 0.0046  memory: 3571  loss: -4.0341  decode.loss_evidential: -4.0341  decode.acc_seg: 0.1709
+08/14 15:44:10 - mmengine - INFO - Iter(train) [   350/160000]  base_lr: 1.3969e-05 lr: 1.3969e-05  eta: 7:16:10  time: 0.0538  data_time: 0.0048  memory: 3571  loss: -6.6705  decode.loss_evidential: -6.6705  decode.acc_seg: 2.9046
+08/14 15:44:13 - mmengine - INFO - Iter(train) [   400/160000]  base_lr: 1.5971e-05 lr: 1.5971e-05  eta: 6:39:16  time: 0.0536  data_time: 0.0048  memory: 3571  loss: -10.6532  decode.loss_evidential: -10.6532  decode.acc_seg: 0.0531
+08/14 15:44:15 - mmengine - INFO - Iter(train) [   450/160000]  base_lr: 1.7972e-05 lr: 1.7972e-05  eta: 6:10:35  time: 0.0527  data_time: 0.0044  memory: 3571  loss: -16.8051  decode.loss_evidential: -16.8051  decode.acc_seg: 0.0819
+08/14 15:44:18 - mmengine - INFO - Iter(train) [   500/160000]  base_lr: 1.9973e-05 lr: 1.9973e-05  eta: 5:47:35  time: 0.0532  data_time: 0.0046  memory: 3571  loss: -21.5559  decode.loss_evidential: -21.5559  decode.acc_seg: 0.0277
+08/14 15:44:21 - mmengine - INFO - Iter(train) [   550/160000]  base_lr: 2.1975e-05 lr: 2.1975e-05  eta: 5:28:41  time: 0.0533  data_time: 0.0045  memory: 3571  loss: -32.4355  decode.loss_evidential: -32.4355  decode.acc_seg: 0.1251
+08/14 15:44:23 - mmengine - INFO - Iter(train) [   600/160000]  base_lr: 2.3976e-05 lr: 2.3976e-05  eta: 5:12:54  time: 0.0525  data_time: 0.0042  memory: 3571  loss: -49.3562  decode.loss_evidential: -49.3562  decode.acc_seg: 10.5439
+08/14 15:44:26 - mmengine - INFO - Iter(train) [   650/160000]  base_lr: 2.5977e-05 lr: 2.5977e-05  eta: 4:59:37  time: 0.0540  data_time: 0.0050  memory: 3571  loss: -60.3414  decode.loss_evidential: -60.3414  decode.acc_seg: 0.0000
+08/14 15:44:29 - mmengine - INFO - Iter(train) [   700/160000]  base_lr: 2.7979e-05 lr: 2.7979e-05  eta: 4:48:20  time: 0.0538  data_time: 0.0047  memory: 3571  loss: -86.8752  decode.loss_evidential: -86.8752  decode.acc_seg: 0.3103
+08/14 15:44:31 - mmengine - INFO - Iter(train) [   750/160000]  base_lr: 2.9980e-05 lr: 2.9980e-05  eta: 4:38:30  time: 0.0538  data_time: 0.0049  memory: 3571  loss: -100.6278  decode.loss_evidential: -100.6278  decode.acc_seg: 0.1431
+08/14 15:44:34 - mmengine - INFO - Iter(train) [   800/160000]  base_lr: 3.1981e-05 lr: 3.1981e-05  eta: 4:29:52  time: 0.0528  data_time: 0.0042  memory: 3571  loss: -118.9630  decode.loss_evidential: -118.9630  decode.acc_seg: 0.0000
+08/14 15:44:37 - mmengine - INFO - Iter(train) [   850/160000]  base_lr: 3.3983e-05 lr: 3.3983e-05  eta: 4:22:08  time: 0.0527  data_time: 0.0040  memory: 3571  loss: -155.5839  decode.loss_evidential: -155.5839  decode.acc_seg: 0.0112
+08/14 15:44:39 - mmengine - INFO - Iter(train) [   900/160000]  base_lr: 3.5984e-05 lr: 3.5984e-05  eta: 4:15:14  time: 0.0527  data_time: 0.0042  memory: 3571  loss: -185.2481  decode.loss_evidential: -185.2481  decode.acc_seg: 0.0043
+08/14 15:44:42 - mmengine - INFO - Iter(train) [   950/160000]  base_lr: 3.7985e-05 lr: 3.7985e-05  eta: 4:09:04  time: 0.0525  data_time: 0.0040  memory: 3571  loss: -247.3489  decode.loss_evidential: -247.3489  decode.acc_seg: 0.4375
+08/14 15:44:45 - mmengine - INFO - Exp name: segformer_mit-b0_8xb1-160k_cityscapes-1024x1024_20250814_154241
+08/14 15:44:45 - mmengine - INFO - Iter(train) [  1000/160000]  base_lr: 3.9987e-05 lr: 3.9987e-05  eta: 4:03:30  time: 0.0525  data_time: 0.0041  memory: 3571  loss: -315.6256  decode.loss_evidential: -315.6256  decode.acc_seg: 0.3512
+08/14 15:44:47 - mmengine - INFO - Iter(train) [  1050/160000]  base_lr: 4.1988e-05 lr: 4.1988e-05  eta: 3:58:30  time: 0.0529  data_time: 0.0041  memory: 3571  loss: -343.7920  decode.loss_evidential: -343.7920  decode.acc_seg: 0.0000
+08/14 15:44:50 - mmengine - INFO - Iter(train) [  1100/160000]  base_lr: 4.3989e-05 lr: 4.3989e-05  eta: 3:54:00  time: 0.0537  data_time: 0.0046  memory: 3571  loss: -479.1126  decode.loss_evidential: -479.1126  decode.acc_seg: 0.0000
+08/14 15:44:53 - mmengine - INFO - Iter(train) [  1150/160000]  base_lr: 4.5991e-05 lr: 4.5991e-05  eta: 3:49:52  time: 0.0528  data_time: 0.0040  memory: 3571  loss: -520.7201  decode.loss_evidential: -520.7201  decode.acc_seg: 0.2352
+08/14 15:44:55 - mmengine - INFO - Iter(train) [  1200/160000]  base_lr: 4.7992e-05 lr: 4.7992e-05  eta: 3:46:03  time: 0.0527  data_time: 0.0041  memory: 3571  loss: -645.3683  decode.loss_evidential: -645.3683  decode.acc_seg: 0.0069
+08/14 15:44:58 - mmengine - INFO - Iter(train) [  1250/160000]  base_lr: 4.9993e-05 lr: 4.9993e-05  eta: 3:42:30  time: 0.0525  data_time: 0.0040  memory: 3571  loss: -819.6266  decode.loss_evidential: -819.6266  decode.acc_seg: 0.0000
+08/14 15:45:00 - mmengine - INFO - Iter(train) [  1300/160000]  base_lr: 5.1995e-05 lr: 5.1995e-05  eta: 3:39:16  time: 0.0528  data_time: 0.0041  memory: 3571  loss: -803.6592  decode.loss_evidential: -803.6592  decode.acc_seg: 0.0000
+08/14 15:45:03 - mmengine - INFO - Iter(train) [  1350/160000]  base_lr: 5.3996e-05 lr: 5.3996e-05  eta: 3:36:20  time: 0.0538  data_time: 0.0047  memory: 3571  loss: -1040.1790  decode.loss_evidential: -1040.1790  decode.acc_seg: 3.0624
+08/14 15:45:06 - mmengine - INFO - Iter(train) [  1400/160000]  base_lr: 5.5997e-05 lr: 5.5997e-05  eta: 3:33:31  time: 0.0526  data_time: 0.0038  memory: 3571  loss: -1389.8201  decode.loss_evidential: -1389.8201  decode.acc_seg: 0.0136
+08/14 15:45:08 - mmengine - INFO - Iter(train) [  1450/160000]  base_lr: 5.7999e-05 lr: 5.7999e-05  eta: 3:30:56  time: 0.0541  data_time: 0.0047  memory: 3571  loss: -1259.1798  decode.loss_evidential: -1259.1798  decode.acc_seg: 0.9993
+08/14 15:45:11 - mmengine - INFO - Iter(train) [  1500/160000]  base_lr: 6.0000e-05 lr: 6.0000e-05  eta: 3:28:32  time: 0.0529  data_time: 0.0042  memory: 3571  loss: -1977.1692  decode.loss_evidential: -1977.1692  decode.acc_seg: 0.5561
+08/14 15:45:14 - mmengine - INFO - Iter(train) [  1550/160000]  base_lr: 5.9981e-05 lr: 5.9981e-05  eta: 3:26:16  time: 0.0529  data_time: 0.0043  memory: 3571  loss: -1784.7824  decode.loss_evidential: -1784.7824  decode.acc_seg: 0.8999
+08/14 15:45:16 - mmengine - INFO - Iter(train) [  1600/160000]  base_lr: 5.9963e-05 lr: 5.9963e-05  eta: 3:24:05  time: 0.0520  data_time: 0.0038  memory: 3571  loss: -2430.1150  decode.loss_evidential: -2430.1150  decode.acc_seg: 0.9126
+08/14 15:45:19 - mmengine - INFO - Iter(train) [  1650/160000]  base_lr: 5.9944e-05 lr: 5.9944e-05  eta: 3:22:05  time: 0.0523  data_time: 0.0038  memory: 3571  loss: -2729.9510  decode.loss_evidential: -2729.9510  decode.acc_seg: 0.0022
+08/14 15:45:22 - mmengine - INFO - Iter(train) [  1700/160000]  base_lr: 5.9925e-05 lr: 5.9925e-05  eta: 3:20:12  time: 0.0535  data_time: 0.0045  memory: 3571  loss: -2599.9297  decode.loss_evidential: -2599.9297  decode.acc_seg: 0.0343
+08/14 15:45:24 - mmengine - INFO - Iter(train) [  1750/160000]  base_lr: 5.9906e-05 lr: 5.9906e-05  eta: 3:18:23  time: 0.0525  data_time: 0.0039  memory: 3571  loss: -3353.8684  decode.loss_evidential: -3353.8684  decode.acc_seg: 0.5867
