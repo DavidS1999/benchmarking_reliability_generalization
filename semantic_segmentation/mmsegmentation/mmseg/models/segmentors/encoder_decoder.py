@@ -89,7 +89,7 @@ class EncoderDecoder(BaseSegmentor):
                  attack_loss: ConfigType=None,
                  attack_cfg: ConfigType=None,
                  normalize_mean_std: ConfigType=None,
-                 enable_normalization: bool = False,
+                 enable_normalization: bool = False, # look in tools/test.py -> comes from data_preprocessor.enable_normalization
                  perform_attack: bool=False):
         # import pdb
         # pdb.set_trace()
@@ -484,7 +484,7 @@ class EncoderDecoder(BaseSegmentor):
         # import pdb
         # pdb.set_trace()
 
-        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if self.enable_normalization else torch.nn.Identity()
+        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if not self.enable_normalization else torch.nn.Identity()
         
         
         if self.perform_attack:
@@ -495,7 +495,7 @@ class EncoderDecoder(BaseSegmentor):
                 orig_inputs = inputs.clone().detach()
                 
                 # import pdb
-                pdb.set_trace()
+                # pdb.set_trace()
                 if 'pgd' in self.attack_cfg['name']:
                     if self.attack_cfg['norm'] == 'linf':
                         inputs = attack.init_linf(inputs, epsilon, clamp_min = 0, clamp_max=255)
