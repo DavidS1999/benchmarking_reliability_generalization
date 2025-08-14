@@ -6,8 +6,8 @@
 #SBATCH --gres=gpu:1
 #SBATCH --mem=4G
 #SBATCH --cpus-per-task=8
-#SBATCH --job-name=train_cityscapes_segformer_mitb0_crossentropy
-#SBATCH --output=slurm/evidential/train_cityscapes_segformer_mitb0_crossentropy.out
+#SBATCH --job-name=train_cityscapes_segformer_mitb0_evidential
+#SBATCH --output=slurm/evidential/train_cityscapes_segformer_mitb0_evidential.out
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=david.schader@students.uni-mannheim.de
 

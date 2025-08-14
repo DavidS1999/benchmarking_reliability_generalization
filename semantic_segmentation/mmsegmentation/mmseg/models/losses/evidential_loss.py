@@ -21,6 +21,8 @@ class EvidentialMSELoss(nn.Module):
                  reduction='mean',
                  loss_name='loss_evidential',
                  ignore_index = 255,
+                 kl_anneal_max_i = 10000, # increase kl strength linear
+                 min_kl_factor = 0.
                  ):
         super().__init__()
         self.loss_weight = loss_weight
@@ -28,6 +30,19 @@ class EvidentialMSELoss(nn.Module):
         self.reduction = reduction
         self._loss_name = loss_name
         self.ignore_index = ignore_index
+        self.kl_anneal_max_i = kl_anneal_max_i
+        self.min_kl_factor = min_kl_factor
+
+        # iter counter
+        self.register_buffer("seen_iters", torch.tensor(0, dtype=torch.long), persistent=False)
+    
+    def _anneal_factor(self):
+        if self.training and self.kl_anneal_max_i is not None and self.kl_anneal_max_i > 0:
+            self.seen_iters += 1
+            factor = max(0, min(1, self.seen_iters.float() / float(self.kl_anneal_max_i)))
+        else:
+            factor = 1.0
+        return self.min_kl_factor + (1 - self.min_kl_factor) * factor
     
     def forward(self,
                 pred,
@@ -39,15 +54,15 @@ class EvidentialMSELoss(nn.Module):
                 **kwargs):
         """Forward function."""
         import pdb
-        # pdb.set_trace()
+        pdb.set_trace()
 
         reduction = self.reduction if reduction is None else reduction
         ignore_index = self.ignore_index if ignore_index is None else ignore_index
 
-        evidence = F.softplus(pred)
-        alpha = evidence + 1
+        evidence = F.softplus(pred)   # evidence >= 0
+        alpha = evidence + 1          # alpha >= 1 (if alpha < 1 -> bimodal dirichlet)
         S = torch.sum(alpha, dim = 1, keepdim = True) # TODO dim?
-        probs = alpha / S
+        probs = alpha / S # dim of alpha is [1, 19, 1024, 1024]
         # uc_map = probs.shape[1] / (S + 1)
 
         # ignore index
@@ -55,17 +70,28 @@ class EvidentialMSELoss(nn.Module):
         new_target[new_target == ignore_index] = 0
 
         target_onehot = F.one_hot(new_target, num_classes = pred.shape[1])
-        target_onehot = target_onehot.permute(0, 3, 1, 2).float()
+        target_onehot = target_onehot.permute(0, 3, 1, 2).float() # shape[1, 19, 1024, 1024]
 
         valid_mask = (target != ignore_index).unsqueeze(1).float()
         probs = probs * valid_mask
         target_onehot = target_onehot * valid_mask
 
-        mse = torch.sum((target_onehot - probs)**2, dim = 1)
+        # mse = torch.sum((target_onehot - probs)**2, dim = 1)
+        # kl = self.kl_strength * self._kl_dirichlet(alpha)
+        # loss = mse + kl
 
-        kl = self.kl_strength * self._kl_dirichlet(alpha)
+        # include variance
+        mse = (target_onehot - probs) ** 2 # bias
+        var = (probs * (1.0 - probs)) / (S + 1.0)
+        data_term = (mse + var).sum(dim = 1)
 
-        loss = mse + kl
+        kl = self._kl_dirichlet(alpha)
+
+        # annealing
+        kl_factor = self._anneal_factor() * self.kl_strength
+
+        loss = data_term + kl_factor * kl
+
 
         if weight is not None:
             loss = loss*weight # TODO check dimensions
