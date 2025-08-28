@@ -634,7 +634,7 @@ class EncoderDecoder(BaseSegmentor):
             softmax_list.append(probs.unsqueeze(0))
         softmax_preds = torch.cat(softmax_list, dim = 0)
         uc_map = self._calculate_uncertainty_from_softmax(softmax_preds)
-        
+
         # mean over N
         probs_mean = softmax_preds.mean(dim = 0)
         seg_logits_mean = torch.log(probs_mean.clamp_min(1e-12))
@@ -656,8 +656,6 @@ class EncoderDecoder(BaseSegmentor):
         
         if was_training:
             self.train()
-        
-        pdb.set_trace()
         
         return results
 

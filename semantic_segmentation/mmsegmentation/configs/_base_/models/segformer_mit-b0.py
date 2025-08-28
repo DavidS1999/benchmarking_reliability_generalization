@@ -51,6 +51,7 @@ model = dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction='none'
             # type='EvidentialMSELoss', loss_weight = 1.0, kl_strength = 1.0, reduction = "none"
     ),
-    attack_cfg = {"name": "pgd", "norm": "l2","epsilon": 8,"alpha": 0.01, "iterations": 20}
+    attack_cfg = {"name": "cospgd", "norm": "linf","epsilon": 4,"alpha": 0.01, "iterations": 20}
+    # attack_cfg = {"name": "pgd", "norm": "l2","epsilon": 8,"alpha": 0.01, "iterations": 20}
 
 )

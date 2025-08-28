@@ -36,6 +36,17 @@ param_scheduler = [
     )
 ]
 
+custom_imports = dict(
+    imports=['mmseg_custom.hooks.uncertainty_dump'],
+    allow_failed_imports=False
+)
+custom_hooks = [
+    dict(
+        type='UncertaintyDumpHook',
+        save_maps=True
+    )
+]
+
 train_dataloader = dict(batch_size=1, num_workers=4)
 val_dataloader = dict(batch_size=1, num_workers=4)
 test_dataloader = val_dataloader
