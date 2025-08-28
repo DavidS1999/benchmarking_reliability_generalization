@@ -16,8 +16,9 @@ from mmseg.utils import (ConfigType, OptConfigType, OptMultiConfig,
 from .base import BaseSegmentor
 
 from mmseg.models.utils import resize
-
+from mmengine.structures import PixelData
 import math
+import pdb
 
 @MODELS.register_module()
 class EncoderDecoder(BaseSegmentor):
@@ -187,6 +188,31 @@ class EncoderDecoder(BaseSegmentor):
             losses.update(add_prefix(loss_aux, 'aux'))
 
         return losses
+
+    def _activate_dropout(self):
+        for layer in self.modules():
+            if layer.__class__.__name__.startswith("Dropout"):
+                layer.train()
+    
+    @torch.no_grad()
+    def _calculate_uncertainty_from_softmax(self, softmax_predictions) -> torch.Tensor:
+        """
+        softmax_predictions: (T, N, C, H, W) 
+        return: (N, 1, H, W) mutual information (uncertainty map)
+        """
+        T, N, C, H, W = softmax_predictions.shape
+        probs_mean = softmax_predictions.mean(dim=0) # (N,C,H,W)
+        pred_entropy = -(probs_mean.clamp_min(1e-12) * probs_mean.clamp_min(1e-12).log()).sum(dim=1, keepdim=True)  # (N,1,H,W)
+        
+        # expected entropy
+        ent_T = -(softmax_predictions.clamp_min(1e-12) * softmax_predictions.clamp_min(1e-12).log()).sum(dim=2, keepdim=True) # (T,N,1,H,W)
+        expected_entropy = ent_T.mean(dim=0) # (N,1,H,W)
+        # mutual information
+        mi = pred_entropy - expected_entropy # (N,1,H,W)
+        
+        # optional normalize: mi/log(C)
+        mi = mi / math.log(C)
+        return mi
 
     def segpgd_scale(
             self,
@@ -436,8 +462,7 @@ class EncoderDecoder(BaseSegmentor):
     def predict(self,
                 inputs: Tensor,
                 data_samples: OptSampleList = None) -> SampleList:
-        import pdb
-        # pdb.set_trace()
+
         """Predict results from a batch of inputs and data samples with post-
         processing.
 
@@ -587,12 +612,58 @@ class EncoderDecoder(BaseSegmentor):
                     else:
                         raise NotImplementedError('Only linf and l2 norm implemented')
         
-        seg_logits = self.inference(normalize(inputs), batch_img_metas)
-
-
         # seg_logits = self.inference(inputs, batch_img_metas)
 
-        return self.postprocess_result(seg_logits, data_samples)
+        # seg_logits = self.inference(normalize(inputs), batch_img_metas)
+        # Monte Carlo Dropout
+        n_runs = 8
+        use_mc_dropout = True
+
+        if not use_mc_dropout or n_runs == 1:
+            seg_logits = self.inference(normalize(inputs), batch_img_metas)
+            return self.postprocess_result(seg_logits, data_samples)
+        
+        was_training = self.training # save last mode
+        self.eval()
+        self._activate_dropout()
+
+        softmax_list = []
+        for _ in range(n_runs):
+            seg_logits = self.inference(normalize(inputs), batch_img_metas)
+            probs = seg_logits.data.softmax(dim = 1)
+            softmax_list.append(probs.unsqueeze(0))
+        softmax_preds = torch.cat(softmax_list, dim = 0)
+        uc_map = self._calculate_uncertainty_from_softmax(softmax_preds)
+        
+        # mean over N
+        probs_mean = softmax_preds.mean(dim = 0)
+        seg_logits_mean = torch.log(probs_mean.clamp_min(1e-12))
+        results = self.postprocess_result(seg_logits_mean, data_samples)
+
+        for i, r in enumerate(results):
+            r.set_field(PixelData(data=uc_map[i]), name="uncertainty_map")
+            uc_score = float(uc_map[i].mean().item())
+            r.set_field(uc_score, name = "uncertainty_score")
+        
+            # uncertainty by class
+            pred_i = probs_mean[i].argmax(dim = 0)
+            uc_by_class = dict()
+            for class_i in range(self.num_classes):
+                m = (pred_i == class_i)
+                if m.any():
+                    uc_by_class[int(class_i)] = float(uc_map[i, 0][m].mean().item())
+            r.set_field(uc_by_class, name = "uncertainty_by_class")
+        
+        if was_training:
+            self.train()
+        
+        pdb.set_trace()
+        
+        return results
+
+        
+
+        
 
     def _forward(self,
                  inputs: Tensor,
