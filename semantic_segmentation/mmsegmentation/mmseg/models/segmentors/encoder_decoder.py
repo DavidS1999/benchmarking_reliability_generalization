@@ -91,7 +91,9 @@ class EncoderDecoder(BaseSegmentor):
                  attack_cfg: ConfigType=None,
                  normalize_mean_std: ConfigType=None,
                  enable_normalization: bool = False, # look in tools/test.py -> comes from data_preprocessor.enable_normalization
-                 perform_attack: bool=False):
+                 perform_attack: bool=False,
+                 adv_train_enable: bool=False,
+                 adv_train_ratio: float=0.5):
         # import pdb
         # pdb.set_trace()
         super().__init__(
@@ -116,7 +118,9 @@ class EncoderDecoder(BaseSegmentor):
         self.criterion = MODELS.build(self.attack_loss) 
         self.perform_attack=perform_attack
         self.enable_normalization = enable_normalization
-        
+        self.adv_train_enable = adv_train_enable
+        self.adv_train_ratio = adv_train_ratio
+
         self.mean=normalize_mean_std['mean']
         self.std=normalize_mean_std['std']
         self.counter=0
