@@ -93,7 +93,7 @@ class EncoderDecoder(BaseSegmentor):
                  enable_normalization: bool = False, # look in tools/test.py -> comes from data_preprocessor.enable_normalization
                  perform_attack: bool=False,
                  adv_train_enable: bool=False,
-                 adv_train_ratio: float=0.5):
+                 adv_train_ratio: float=0.5,):
         # import pdb
         # pdb.set_trace()
         super().__init__(
@@ -124,6 +124,7 @@ class EncoderDecoder(BaseSegmentor):
         self.mean=normalize_mean_std['mean']
         self.std=normalize_mean_std['std']
         self.counter=0
+        self._attack_ctx = False
 
         assert self.with_decode_head
 
@@ -462,6 +463,153 @@ class EncoderDecoder(BaseSegmentor):
             losses.update(loss_aux)
 
         return losses
+    
+    def _apply_adversarial(
+            self,
+            inputs, #(N,C,H,W)
+            data_samples,
+            batch_img_metas,
+            attack_cfg: dict,
+            normalize_fn, # normalize or identity
+            freeze_bn: bool = True # freeze Batchnorm/Dropout (if in training)
+    ):
+        """return adversarially changed inputs"""
+        if attack_cfg is None:
+            return inputs
+        
+        x_max = float(inputs.detach().max().item())
+        epsilon = float(attack_cfg["epsilon"])
+        alpha = float(attack_cfg["alpha"])
+        iterations = int(attack_cfg["iterations"])
+        norm = attack_cfg["norm"]
+        targeted = bool(attack_cfg.get("targeted", False)) # default is False
+        name = str(attack_cfg.get("name", "pgd")).lower()  # default is pgd
+
+        if x_max <= 1:
+            epsilon = epsilon/255.0
+            clamp_min = 0.0
+            clamp_max = 1.0
+        else:
+            alpha = alpha*255.0
+            clamp_min = 0.0
+            clamp_max = 255.0
+        
+        if name == "apgd":
+            adv = self.apgd(
+                model = self.inference,
+                noramlize_inputs = normalize_fn,
+                batch_img_metas = batch_img_metas,
+                data_samples = data_samples,
+                n_iter = iterations,
+                x = inputs/255.,
+                y = data_samples[-1].gt_sem_seg,
+                device = inputs.device,
+                eps=epsilon/255.
+            )
+            return adv.clamp_(clamp_min, clamp_max).detach()
+        
+        x0 = inputs.detach() # detach from loss.backward
+        x = x0.clone()
+
+        # for pgd, segpgd and cospgd
+        if norm == "linf":
+            x = attack.init_linf(x0, epsilon, clamp_min, clamp_max)
+        elif norm == "l2":
+            x = attack.init_l2(x0, epsilon, clamp_min, clamp_max)
+        else:
+            raise NotImplementedError('Norm ' + norm +' not implemented, only linf and l2 norm implemented')     
+
+        was_training = self.training
+        if freeze_bn:
+            self.eval()
+
+        for itr in range(iterations if name not in ("fgsm","fast") else 1):
+            x.requires_grad = True
+            self.zero_grad()
+
+            self._attack_ctx = True # TODO: flag for currently applying adversarial
+            with torch.enable_grad():
+                
+                seg_logits = self.inference(normalize_fn(x), batch_img_metas)
+                loss_dict = self.loss(normalize_fn(x), data_samples)
+                loss_names = ['decode.loss_ce','decode.loss_evidential','decode.loss_dice',
+                    'decode.loss_boundary','decode.loss_focal','decode.loss_huasdorff_disstance',
+                    'decode.loss_kld','decode.loss_lovasz','decode.loss_ohem','decode.loss_silog',
+                    'decode.loss_tversky']
+                for loss_name in loss_names:
+                    if loss_name in loss_dict:
+                        loss = loss_dict[loss_name]
+                        break
+                else:
+                    raise AttributeError("Decoder has no loss defined")
+
+                img_meta = batch_img_metas[0]
+                batch_size, C, H, W = seg_logits.shape
+                padding_size = img_meta.get("img_padding_size", img_meta.get("padding_size", [0] * 4))
+                padding_left, padding_right, padding_top, padding_bottom = padding_size
+                
+                # i_seg_logits shape is 1, C, H, W after remove padding
+                i_seg_logits = seg_logits[:, :, padding_top:H - padding_bottom, padding_left:W - padding_right]
+                
+                resized_seg_logits = resize(
+                                i_seg_logits,
+                                size=batch_img_metas[0]['ori_shape'],
+                                mode='bilinear',
+                                align_corners=self.align_corners,
+                                warning=False)
+                
+                if name == "cospgd":
+                    with torch.no_grad():
+                        gt = torch.stack([ds.gt_sem_seg.data.squeeze(0) for ds in data_samples], dim = 0).to(resized_seg_logits.device)
+                        cossim = self.cospgd_scale(resized_seg_logits.detach(),
+                                                   gt.detach(),
+                                                   loss,
+                                                   num_classes = resized_seg_logits.shape[1],
+                                                   targeted = targeted,
+                                                   one_hot = True,
+                                                   )
+                        loss = cossim.detach() * loss
+                elif name == "segpgd":
+                    gt = torch.stack([ds.gt_sem_seg.data.squeeze(0) for ds in data_samples], dim = 0).to(resized_seg_logits.device)
+                    loss = self.segpgd_scale(resized_seg_logits,
+                                             gt,
+                                             loss,
+                                             iteration = itr,
+                                             iterations = iterations,
+                                             targeted = targeted)
+            
+            # old: loss.mean().backward() -> used in step functions with data_grad = inputs.grad
+            (grad_x,) = torch.autograd.grad(loss.mean(), x, retain_graph = False, create_graph = False)
+            x = x.detach()
+            self._attack_ctx = False # set flag to False again
+
+            if norm == "l2":
+                x = attack.setp_l2(x,
+                                   epsilon,
+                                   data_grad = grad_x,
+                                   orig_image = x0,
+                                   alpha = alpha,
+                                   targeted = targeted,
+                                   clamp_min = clamp_min,
+                                   clamp_max = clamp_max)
+            elif norm == "linf":
+                x = attack.step_linf(x,
+                                     epsilon, 
+                                     data_grad = grad_x,
+                                     orig_image = x0,
+                                     alpha = alpha,
+                                     targeted = targeted,
+                                     clamp_min = clamp_min,
+                                     clamp_max = clamp_max)
+            else:
+                raise NotImplementedError('Only linf and l2 norm implemented')
+            
+            if was_training and freeze_bn:
+                self.train()
+            
+            return x.detach()
+
+
 
     def predict(self,
                 inputs: Tensor,
@@ -498,125 +646,21 @@ class EncoderDecoder(BaseSegmentor):
                     padding_size=[0, 0, 0, 0])
             ] * inputs.shape[0]
         
-        # print(f"old: epsilon={self.attack_cfg['epsilon']}, alpha={self.attack_cfg['alpha']}")
-
-        # old version: 
-        # self.attack_cfg["epsilon"] = self.attack_cfg["epsilon"]/255 if inputs.max() <= 1 else self.attack_cfg["epsilon"]
-        # self.attack_cfg["alpha"] = self.attack_cfg["alpha"]*255 if inputs.max() > 1 else self.attack_cfg["alpha"]
-
-
-        # propose:
-        if self.attack_cfg is not None:
-            epsilon = self.attack_cfg["epsilon"]/255 if inputs.max() <= 1 else self.attack_cfg["epsilon"]
-            alpha = self.attack_cfg["alpha"]*255 if inputs.max() > 1 else self.attack_cfg["alpha"]
-
-        # print(f"new: epsilon={epsilon}, alpha={alpha}")
-
-        
-
-        # import pdb
-        # pdb.set_trace()
 
         # shift normalize from data_preprocessor to loss/predict
         normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if not self.enable_normalization else torch.nn.Identity()
         
         
-        if self.perform_attack:
-            print("perform attack")
-            if self.attack_cfg['name']=='apgd':
-                inputs = self.apgd(model = self.inference, normalize_inputs=normalize, batch_img_metas = batch_img_metas, data_samples=data_samples, n_iter=self.attack_cfg['iterations'], x = inputs/255., y = data_samples[-1].gt_sem_seg, device = inputs.device, eps=epsilon/255.)
-            else:
-                orig_inputs = inputs.clone().detach()
-                
-                # import pdb
-                # pdb.set_trace()
-                if 'pgd' in self.attack_cfg['name']:
-                    if self.attack_cfg['norm'] == 'linf':
-                        inputs = attack.init_linf(inputs, epsilon, clamp_min = 0, clamp_max=255)
-                    elif self.attack_cfg['norm'] == 'l2':
-                        inputs = attack.init_l2(inputs, epsilon, clamp_min = 0, clamp_max=255)
-                    else:
-                        raise NotImplementedError('Norm ' + str(self.attack_cfg['norm']) +' not implemented, only linf and l2 norm implemented')                                               
-                
-                for itr in range(self.attack_cfg['iterations']):
-                    inputs.requires_grad = True
-                    
-                    self.zero_grad()
-                    
-                
-                    with torch.enable_grad():
-                        seg_logits = self.inference(normalize(inputs), batch_img_metas)
-
-                        # loss = self.loss(normalize(inputs), data_samples)['decode.loss_ce']
-                        loss_temp = self.loss(normalize(inputs), data_samples)
-
-                        if 'decode.loss_ce' in loss_temp:
-                            loss = loss_temp['decode.loss_ce']
-                        elif 'decode.loss_evidential' in loss_temp:
-                            loss = loss_temp['decode.loss_evidential']
-                        elif 'decode.loss_dice' in loss_temp:
-                            loss = loss_temp['decode.loss_dice']
-                        elif 'decode.loss_boundary' in loss_temp:
-                            loss = loss_temp['decode.loss_boundary']
-                        elif 'decode.loss_focal' in loss_temp:
-                            loss = loss_temp['decode.loss_focal']
-                        elif 'decode.loss_huasdorff_disstance' in loss_temp:
-                            loss = loss_temp['decode.loss_huasdorff_disstance']
-                        elif 'decode.loss_kld' in loss_temp:
-                            loss = loss_temp['decode.loss_kld']
-                        elif 'decode.loss_lovasz' in loss_temp:
-                            loss = loss_temp['decode.loss_lovasz']
-                        elif 'decode.loss_ohem' in loss_temp:
-                            loss = loss_temp['decode.loss_ohem']
-                        elif 'decode.loss_silog' in loss_temp:
-                            loss = loss_temp['decode.loss_silog']
-                        elif 'decode.loss_tversky' in loss_temp:
-                            loss = loss_temp['decode.loss_tversky']
-                        else:
-                            raise AttributeError('Decoder has no loss defined')
-         
-                        img_meta = batch_img_metas[0]
-                        batch_size, C, H, W = seg_logits.shape
-                        if 'img_padding_size' not in img_meta:
-                            padding_size = img_meta.get('padding_size', [0] * 4)
-                        else:
-                            padding_size = img_meta['img_padding_size']
-                        padding_left, padding_right, padding_top, padding_bottom =\
-                            padding_size
-                        # i_seg_logits shape is 1, C, H, W after remove padding
-                        i_seg_logits = seg_logits[:, :,
-                                                padding_top:H - padding_bottom,
-                                                padding_left:W - padding_right]
-                        
-                        resized_seg_logits = resize(
-                                        i_seg_logits,
-                                        size=batch_img_metas[0]['ori_shape'],
-                                        mode='bilinear',
-                                        align_corners=self.align_corners,
-                                        warning=False)
-                        
-                        
-                        
-                        if self.attack_cfg['name'] == 'cospgd':
-                        
-                            with torch.no_grad():
-                                
-                                cossim = self.cospgd_scale(resized_seg_logits.detach(), data_samples[-1].gt_sem_seg.data.detach(), loss, num_classes=resized_seg_logits.shape[1], targeted=self.attack_cfg['targeted'], one_hot=True)
-                            loss = cossim.detach() * loss
-                        elif self.attack_cfg['name'] == 'segpgd':
-                            loss = self.segpgd_scale(resized_seg_logits, data_samples[-1].gt_sem_seg.data, loss, iteration=itr, iterations=self.attack_cfg['iterations'], targeted=self.attack_cfg['targeted'])
-                    
-                    
-                        loss.mean().backward()
-                    
-                    if self.attack_cfg['norm'] == 'linf':
-                        inputs = attack.step_inf(inputs, epsilon, data_grad=inputs.grad, orig_image=orig_inputs, alpha=alpha, targeted=self.attack_cfg['targeted'], clamp_min = 0, clamp_max=255)
-                    elif self.attack_cfg['norm'] == 'l2':
-                        inputs = attack.step_l2(inputs, epsilon, data_grad=inputs.grad, orig_image=orig_inputs, alpha=alpha, targeted=self.attack_cfg['targeted'], clamp_min = 0, clamp_max=255)
-                    else:
-                        raise NotImplementedError('Only linf and l2 norm implemented')
-        
-        # seg_logits = self.inference(inputs, batch_img_metas)
+        if self.perform_attack and self.attack_cfg is not None:
+            
+            inputs = self._apply_adversarial(
+                inputs = inputs,
+                data_samples = data_samples,
+                batch_img_metas = batch_img_metas,
+                attack_cfg = self.attack_cfg,
+                normalize_fn = normalize,
+                freeze_bn = True, # predict -> already eval mode, so not neccessarry
+            )
 
         # seg_logits = self.inference(normalize(inputs), batch_img_metas)
         # Monte Carlo Dropout
