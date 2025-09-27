@@ -15,8 +15,8 @@ model = dict(
     data_preprocessor=data_preprocessor,
     pretrained=None,
     normalize_mean_std=dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375]),
-    perform_attack = True, # False # attacks while testing
-    adv_train_enable = False,      # attacks while training
+    perform_attack = False, # False # attacks while testing
+    adv_train_enable = True,      # attacks while training
     adv_train_ratio = 0.5,
     backbone=dict(
         type='MixVisionTransformer',
@@ -53,7 +53,7 @@ model = dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction='none'
             # type='EvidentialMSELoss', loss_weight = 1.0, kl_strength = 1.0, reduction = "none"
     ),
-    attack_cfg = {"name": "cospgd", "norm": "linf","epsilon": 4,"alpha": 0.01, "iterations": 20}
+    attack_cfg = {"name": "cospgd", "norm": "linf","epsilon": 4,"alpha": 0.01, "iterations": 20, "targeted": False}
     # attack_cfg = {"name": "pgd", "norm": "l2","epsilon": 8,"alpha": 0.01, "iterations": 20}
 
 )

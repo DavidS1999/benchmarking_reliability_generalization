@@ -124,7 +124,7 @@ class EncoderDecoder(BaseSegmentor):
         self.mean=normalize_mean_std['mean']
         self.std=normalize_mean_std['std']
         self.counter=0
-        self._attack_ctx = False
+        self._attack_ctx = False # needed for self.loss recursion errors (self.loss used in _apply_adversarial)
 
         assert self.with_decode_head
 
@@ -435,6 +435,8 @@ class EncoderDecoder(BaseSegmentor):
         return x_best_adv*255
         
     def loss(self, inputs: Tensor, data_samples: SampleList) -> dict:
+        import pdb
+        pdb.set_trace()
         """Calculate losses from a batch of inputs and data samples.
 
         Args:
@@ -449,17 +451,46 @@ class EncoderDecoder(BaseSegmentor):
 
         # shift normalize from data_preprocessor to loss/predict
         normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if not self.enable_normalization else torch.nn.Identity()
+
+        if getattr(self, "_attack_ctx", False):
+            adv_training_active = False
+        else:
+            adv_training_active = True
+
+        # 50/50 adversarial training: 50% adversarially attacked images, 50% original
+        if (self.training and adv_training_active and self.adv_train_enable and self.attack_cfg is not None and inputs.size(0) >= 2):
+            batch_size = inputs.size(0)
+            k = max(1, int(round(batch_size * float(self.adv_train_ratio)))) # split
+            idx = torch.randperm(batch_size, device = inputs.device)[:k]
+
+            metas = [ds.metainfo for ds in data_samples]
+            metas_sub = [metas[i] for i in idx.tolist()]
+            ds_sub = [data_samples[i] for i in idx.tolist()]
+
+            # apply adversarial
+            adv = self._apply_adversarial(
+                inputs = inputs[idx],
+                data_samples = ds_sub,
+                batch_img_metas = metas_sub,
+                attack_cfg = self.attack_cfg,
+                normalize_fn = normalize,
+                freeze_bn = True  # important in training mode 
+            )
+
+            # put adversarial subsets back to batch
+            inputs = inputs.clone()
+            inputs[idx] = adv
+
         inputs = normalize(inputs)
 
-        x = self.extract_feat(inputs)
-
+        feats = self.extract_feat(inputs)
         losses = dict()
 
-        loss_decode = self._decode_head_forward_train(x, data_samples)
+        loss_decode = self._decode_head_forward_train(feats, data_samples)
         losses.update(loss_decode)
 
         if self.with_auxiliary_head:
-            loss_aux = self._auxiliary_head_forward_train(x, data_samples)
+            loss_aux = self._auxiliary_head_forward_train(feats, data_samples)
             losses.update(loss_aux)
 
         return losses
@@ -531,7 +562,11 @@ class EncoderDecoder(BaseSegmentor):
             with torch.enable_grad():
                 
                 seg_logits = self.inference(normalize_fn(x), batch_img_metas)
-                loss_dict = self.loss(normalize_fn(x), data_samples)
+                self._attack_ctx = True
+                try:
+                    loss_dict = self.loss(normalize_fn(x), data_samples)
+                finally:
+                    self._attack_ctx = False
                 loss_names = ['decode.loss_ce','decode.loss_evidential','decode.loss_dice',
                     'decode.loss_boundary','decode.loss_focal','decode.loss_huasdorff_disstance',
                     'decode.loss_kld','decode.loss_lovasz','decode.loss_ohem','decode.loss_silog',
