@@ -436,7 +436,7 @@ class EncoderDecoder(BaseSegmentor):
         
     def loss(self, inputs: Tensor, data_samples: SampleList) -> dict:
         import pdb
-        pdb.set_trace()
+        # pdb.set_trace()
         """Calculate losses from a batch of inputs and data samples.
 
         Args:
@@ -555,7 +555,7 @@ class EncoderDecoder(BaseSegmentor):
             self.eval()
 
         for itr in range(iterations if name not in ("fgsm","fast") else 1):
-            x.requires_grad = True
+            x.requires_grad_(True)
             self.zero_grad()
 
             self._attack_ctx = True # TODO: flag for currently applying adversarial
@@ -578,6 +578,8 @@ class EncoderDecoder(BaseSegmentor):
                 else:
                     raise AttributeError("Decoder has no loss defined")
 
+                assert loss.requires_grad, "Loss has no gradient"
+                
                 img_meta = batch_img_metas[0]
                 batch_size, C, H, W = seg_logits.shape
                 padding_size = img_meta.get("img_padding_size", img_meta.get("padding_size", [0] * 4))
@@ -586,24 +588,33 @@ class EncoderDecoder(BaseSegmentor):
                 # i_seg_logits shape is 1, C, H, W after remove padding
                 i_seg_logits = seg_logits[:, :, padding_top:H - padding_bottom, padding_left:W - padding_right]
                 
+                # get correct reshape size (check for gt)
+                has_gt = all(getattr(ds, 'gt_sem_seg', None) is not None for ds in data_samples)
+                if has_gt:
+                    gt = torch.stack([ds.gt_sem_seg.data.squeeze(0) for ds in data_samples], dim = 0).to(i_seg_logits.device)
+                    target_hw = gt.shape[-2:]
+                else:
+                    target_hw = img_meta['ori_shape']
+
+
                 resized_seg_logits = resize(
                                 i_seg_logits,
-                                size=batch_img_metas[0]['ori_shape'],
+                                size=target_hw, # was originally batch_img_metas[0]['ori_shape'],
                                 mode='bilinear',
                                 align_corners=self.align_corners,
                                 warning=False)
                 
                 if name == "cospgd":
-                    with torch.no_grad():
-                        gt = torch.stack([ds.gt_sem_seg.data.squeeze(0) for ds in data_samples], dim = 0).to(resized_seg_logits.device)
-                        cossim = self.cospgd_scale(resized_seg_logits.detach(),
-                                                   gt.detach(),
-                                                   loss,
-                                                   num_classes = resized_seg_logits.shape[1],
-                                                   targeted = targeted,
-                                                   one_hot = True,
-                                                   )
-                        loss = cossim.detach() * loss
+                    # with torch.no_grad():
+                    gt = torch.stack([ds.gt_sem_seg.data.squeeze(0) for ds in data_samples], dim = 0).to(resized_seg_logits.device)
+                    cossim = self.cospgd_scale(resized_seg_logits.detach(),
+                                                gt.detach(),
+                                                loss,
+                                                num_classes = resized_seg_logits.shape[1],
+                                                targeted = targeted,
+                                                one_hot = True,
+                                                )
+                    loss = cossim.detach() * loss
                 elif name == "segpgd":
                     gt = torch.stack([ds.gt_sem_seg.data.squeeze(0) for ds in data_samples], dim = 0).to(resized_seg_logits.device)
                     loss = self.segpgd_scale(resized_seg_logits,
@@ -619,7 +630,7 @@ class EncoderDecoder(BaseSegmentor):
             self._attack_ctx = False # set flag to False again
 
             if norm == "l2":
-                x = attack.setp_l2(x,
+                x = attack.step_l2(x,
                                    epsilon,
                                    data_grad = grad_x,
                                    orig_image = x0,
@@ -628,7 +639,7 @@ class EncoderDecoder(BaseSegmentor):
                                    clamp_min = clamp_min,
                                    clamp_max = clamp_max)
             elif norm == "linf":
-                x = attack.step_linf(x,
+                x = attack.step_inf(x,
                                      epsilon, 
                                      data_grad = grad_x,
                                      orig_image = x0,
@@ -639,10 +650,10 @@ class EncoderDecoder(BaseSegmentor):
             else:
                 raise NotImplementedError('Only linf and l2 norm implemented')
             
-            if was_training and freeze_bn:
-                self.train()
+        if was_training and freeze_bn:
+            self.train()
             
-            return x.detach()
+        return x.detach()
 
 
 
