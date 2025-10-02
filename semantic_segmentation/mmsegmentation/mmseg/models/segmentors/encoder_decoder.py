@@ -711,7 +711,7 @@ class EncoderDecoder(BaseSegmentor):
         # seg_logits = self.inference(normalize(inputs), batch_img_metas)
         # Monte Carlo Dropout
         n_runs = 8
-        use_mc_dropout = True
+        use_mc_dropout = False
 
         if not use_mc_dropout or n_runs == 1:
             seg_logits = self.inference(normalize(inputs), batch_img_metas)
