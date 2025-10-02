@@ -17,7 +17,7 @@ cd mmsegmentation
 
 module load devel/cuda/11.8
 
-python tools/train.py configs/segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py --work-dir work_dirs/adv_segformer_mit-b0_8xb1-160k_cityscapes-1024x1024
+python tools/train.py configs/segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py --work-dir work_dirs/adv_cospgd_3itr_segformer_mit-b0_8xb1-160k_cityscapes-1024x1024
 
 end=$('date +%s')
 runtime=$((end-start))
