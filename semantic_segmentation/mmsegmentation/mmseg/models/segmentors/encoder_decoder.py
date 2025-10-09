@@ -624,10 +624,10 @@ class EncoderDecoder(BaseSegmentor):
                                              iterations = iterations,
                                              targeted = targeted)
             
-            # old: loss.mean().backward() -> used in step functions with data_grad = inputs.grad
-            (grad_x,) = torch.autograd.grad(loss.mean(), x, retain_graph = False, create_graph = False)
-            x = x.detach()
-            self._attack_ctx = False # set flag to False again
+                # old: loss.mean().backward() -> used in step functions with data_grad = inputs.grad
+                (grad_x,) = torch.autograd.grad(loss.mean(), x, retain_graph = False, create_graph = False)
+                x = x.detach()
+                self._attack_ctx = False # set flag to False again
 
             if norm == "l2":
                 x = attack.step_l2(x,

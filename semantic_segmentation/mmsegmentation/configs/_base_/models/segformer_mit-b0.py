@@ -15,8 +15,8 @@ model = dict(
     data_preprocessor=data_preprocessor,
     pretrained=None,
     normalize_mean_std=dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375]),
-    perform_attack = False, # False # attacks while testing
-    adv_train_enable = True,      # attacks while training
+    perform_attack = True, # False # attacks while testing
+    adv_train_enable = False,      # attacks while training
     adv_train_ratio = 0.5,
     backbone=dict(
         type='MixVisionTransformer',
