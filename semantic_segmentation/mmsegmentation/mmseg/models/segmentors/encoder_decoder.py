@@ -93,7 +93,9 @@ class EncoderDecoder(BaseSegmentor):
                  enable_normalization: bool = False, # look in tools/test.py -> comes from data_preprocessor.enable_normalization
                  perform_attack: bool=False,
                  adv_train_enable: bool=False,
-                 adv_train_ratio: float=0.5,):
+                 adv_train_ratio: float=0.5,
+                 mc_dropout: bool = False,
+                 mc_runs: int = 8):
         # import pdb
         # pdb.set_trace()
         super().__init__(
@@ -125,6 +127,8 @@ class EncoderDecoder(BaseSegmentor):
         self.std=normalize_mean_std['std']
         self.counter=0
         self._attack_ctx = False # needed for self.loss recursion errors (self.loss used in _apply_adversarial)
+        self.mc_dropout = mc_dropout
+        self.mc_runs = mc_runs
 
         assert self.with_decode_head
 
@@ -484,6 +488,41 @@ class EncoderDecoder(BaseSegmentor):
         inputs = normalize(inputs)
 
         feats = self.extract_feat(inputs)
+
+        # add dropout
+        if self.mc_droput and self.mc_runs > 1:
+            was_training = self.training # save last mode
+            self.eval()
+            self._activate_dropout()
+
+            if data_samples is not None:
+                batch_img_metas = [
+                    data_sample.metainfo for data_sample in data_samples
+                ]
+            else:
+                batch_img_metas = [
+                    dict(
+                        ori_shape=inputs.shape[2:],
+                        img_shape=inputs.shape[2:],
+                        pad_shape=inputs.shape[2:],
+                        padding_size=[0, 0, 0, 0])
+                ] * inputs.shape[0]
+        
+
+            softmax_list = []
+            for _ in range(self.mc_runs):
+                seg_logits = self.inference(normalize(inputs), batch_img_metas)
+                probs = seg_logits.data.softmax(dim = 1)
+                softmax_list.append(probs.unsqueeze(0))
+            softmax_preds = torch.cat(softmax_list, dim = 0)
+            uc_map = self._calculate_uncertainty_from_softmax(softmax_preds)
+
+            # TODO
+            losses = losses*uc_map #????
+
+            if was_training:
+                self.train()
+
         losses = dict()
 
         loss_decode = self._decode_head_forward_train(feats, data_samples)
@@ -710,10 +749,8 @@ class EncoderDecoder(BaseSegmentor):
 
         # seg_logits = self.inference(normalize(inputs), batch_img_metas)
         # Monte Carlo Dropout
-        n_runs = 8
-        use_mc_dropout = False
 
-        if not use_mc_dropout or n_runs == 1:
+        if not self.mc_dropout or self.mc_runs == 1:
             seg_logits = self.inference(normalize(inputs), batch_img_metas)
             return self.postprocess_result(seg_logits, data_samples)
         
@@ -722,7 +759,7 @@ class EncoderDecoder(BaseSegmentor):
         self._activate_dropout()
 
         softmax_list = []
-        for _ in range(n_runs):
+        for _ in range(self.mc_runs):
             seg_logits = self.inference(normalize(inputs), batch_img_metas)
             probs = seg_logits.data.softmax(dim = 1)
             softmax_list.append(probs.unsqueeze(0))
