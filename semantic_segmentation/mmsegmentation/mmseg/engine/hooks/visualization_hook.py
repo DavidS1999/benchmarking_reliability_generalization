@@ -12,6 +12,49 @@ from mmengine.visualization import Visualizer
 from mmseg.registry import HOOKS
 from mmseg.structures import SegDataSample
 
+import torch
+import torch.nn.functional as F
+
+@torch.no_grad()
+def miou_from_seg_data_sample(sample, num_classes: int = 19, ignore_index: int = 255):
+    """Berechnet mIoU für genau ein SegDataSample."""
+    # 1) Ground truth (H, W) – in MMSeg ist das meist (1, H, W)
+    gt = sample.gt_sem_seg.data.cpu()
+    if gt.dim() == 3 and gt.size(0) == 1:
+        gt = gt.squeeze(0)
+    gt = gt.to(torch.long)
+
+    # 2) Vorhersage-Logits (C, H, W) -> Labelmap (H, W)
+    logits = sample.seg_logits.data.cpu()  # (C, H, W)
+    # Falls Größen nicht matchen, Logits auf GT-Größe bringen
+    if logits.shape[-2:] != gt.shape[-2:]:
+        logits = F.interpolate(logits.unsqueeze(0), size=gt.shape[-2:], mode="bilinear", align_corners=False).squeeze(0)
+    pred = logits.argmax(dim=0).to(torch.long)
+
+    # 3) Ignore-Maske
+    mask = gt != ignore_index
+    if mask.sum() == 0:
+        return {"miou": float("nan"), "per_class_iou": torch.full((num_classes,), float("nan"))}
+
+    gt_v = gt[mask]
+    pred_v = pred[mask]
+
+    # 4) Konfusionsmatrix
+    hist = torch.bincount(
+        (gt_v * num_classes + pred_v).to(torch.long),
+        minlength=num_classes * num_classes
+    ).reshape(num_classes, num_classes).to(torch.float64)
+
+    # 5) IoU pro Klasse und mIoU
+    diag = torch.diag(hist)
+    union = hist.sum(dim=1) + hist.sum(dim=0) - diag
+    valid = union > 0
+    iou = torch.zeros(num_classes, dtype=torch.float64)
+    iou[valid] = (diag[valid] / union[valid])
+    miou = iou[valid].mean().item() if valid.any() else float("nan")
+
+    return {"miou": float(miou), "per_class_iou": iou.double()}
+
 
 @HOOKS.register_module()
 class SegVisualizationHook(Hook):
@@ -38,7 +81,7 @@ class SegVisualizationHook(Hook):
 
     def __init__(self,
                  draw: bool = False,
-                 interval: int = 50,
+                 interval: int = 50, #1,
                  show: bool = False,
                  wait_time: float = 0.,
                  backend_args: Optional[dict] = None):
@@ -80,6 +123,11 @@ class SegVisualizationHook(Hook):
         if self.draw is False or mode == 'train':
             return
 
+        # import pdb
+        # print(outputs[0].seg_map_path)
+        # print(miou_from_seg_data_sample(outputs[0]))
+        # pdb.set_trace()
+
         if self.every_n_inner_iters(batch_idx, self.interval):
             for output in outputs:
                 img_path = output.img_path
@@ -95,3 +143,4 @@ class SegVisualizationHook(Hook):
                     show=self.show,
                     wait_time=self.wait_time,
                     step=runner.iter)
+

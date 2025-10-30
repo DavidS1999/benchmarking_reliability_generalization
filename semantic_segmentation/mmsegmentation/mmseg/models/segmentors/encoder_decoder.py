@@ -490,38 +490,39 @@ class EncoderDecoder(BaseSegmentor):
         feats = self.extract_feat(inputs)
 
         # add dropout
-        if self.mc_droput and self.mc_runs > 1:
-            was_training = self.training # save last mode
-            self.eval()
-            self._activate_dropout()
+        # print("Warning! STOP")
+        # if self.mc_dropout and self.mc_runs > 1:
+        #     was_training = self.training # save last mode
+        #     self.eval()
+        #     self._activate_dropout()
 
-            if data_samples is not None:
-                batch_img_metas = [
-                    data_sample.metainfo for data_sample in data_samples
-                ]
-            else:
-                batch_img_metas = [
-                    dict(
-                        ori_shape=inputs.shape[2:],
-                        img_shape=inputs.shape[2:],
-                        pad_shape=inputs.shape[2:],
-                        padding_size=[0, 0, 0, 0])
-                ] * inputs.shape[0]
+        #     if data_samples is not None:
+        #         batch_img_metas = [
+        #             data_sample.metainfo for data_sample in data_samples
+        #         ]
+        #     else:
+        #         batch_img_metas = [
+        #             dict(
+        #                 ori_shape=inputs.shape[2:],
+        #                 img_shape=inputs.shape[2:],
+        #                 pad_shape=inputs.shape[2:],
+        #                 padding_size=[0, 0, 0, 0])
+        #         ] * inputs.shape[0]
         
 
-            softmax_list = []
-            for _ in range(self.mc_runs):
-                seg_logits = self.inference(normalize(inputs), batch_img_metas)
-                probs = seg_logits.data.softmax(dim = 1)
-                softmax_list.append(probs.unsqueeze(0))
-            softmax_preds = torch.cat(softmax_list, dim = 0)
-            uc_map = self._calculate_uncertainty_from_softmax(softmax_preds)
+        #     softmax_list = []
+        #     for _ in range(self.mc_runs):
+        #         seg_logits = self.inference(normalize(inputs), batch_img_metas)
+        #         probs = seg_logits.data.softmax(dim = 1)
+        #         softmax_list.append(probs.unsqueeze(0))
+        #     softmax_preds = torch.cat(softmax_list, dim = 0)
+        #     uc_map = self._calculate_uncertainty_from_softmax(softmax_preds)
 
-            # TODO
-            losses = losses*uc_map #????
+        #     # TODO
+        #     losses = losses*uc_map #????
 
-            if was_training:
-                self.train()
+        #     if was_training:
+        #         self.train()
 
         losses = dict()
 

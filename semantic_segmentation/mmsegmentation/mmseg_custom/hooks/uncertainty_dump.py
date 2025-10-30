@@ -9,6 +9,7 @@ import pdb
 @HOOKS.register_module()
 class UncertaintyDumpHook(Hook):
     def __init__(self, out_dir=None, save_maps=True):
+        print("Juhuu, Uncertainty will be evaluated")
         self.out_dir = out_dir  # if None -> work_dir/uncertainty_out
         self.save_maps = save_maps
         self.rows = []
