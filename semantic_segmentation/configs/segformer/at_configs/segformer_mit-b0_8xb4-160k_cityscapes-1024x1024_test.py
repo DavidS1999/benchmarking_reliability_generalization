@@ -4,6 +4,7 @@ _base_ = [
 ]
 
 model = dict(
+    enable_normalization = True,
     normalize_mean_std=dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375]),
     perform_attack = True, # False # attacks while testing
     adv_train_enable = False,      # attacks while training
