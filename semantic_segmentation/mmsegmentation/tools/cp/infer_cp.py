@@ -158,32 +158,37 @@ def main():
 
     for i, batch in enumerate(loader):
         
-        # inputs = batch["inputs"]
-        # if isinstance(inputs, (list, tuple)):
-        #     inputs = torch.stack(inputs, dim=0)  # [B,3,H,W]
-        # inputs = inputs.to(device).contiguous()
+        inputs = batch["inputs"]
+        if isinstance(inputs, (list, tuple)):
+            inputs = torch.stack(inputs, dim=0)  # [B,3,H,W]
+        inputs = inputs.to(device).contiguous()
 
-        # data_samples = batch["data_samples"]
+        data_samples = batch["data_samples"]
 
-        # pred_samples = model.predict(inputs, data_samples)
+        
+        for ds in data_samples:
+            if hasattr(ds, "gt_sem_seg") and ds.gt_sem_seg is not None:
+                ds.gt_sem_seg.data = ds.gt_sem_seg.data.to(device, non_blocking=True)
 
-        # logit_list = []
-        # for ds in pred_samples:
-        #     if hasattr(ds, "seg_logits") and ds.seg_logits is not None:
-        #         logit_list.append(ds.seg_logits.data)  # [C,H,W]
-        #     else:
-        #         raise RuntimeError(
-        #             "predict() has no seg_logits. "
-        #             "set in config: cfg.model.test_cfg['output_logits'] = True"
-        #         )
+        pred_samples = model.predict(inputs, data_samples)
 
-        # logits = torch.stack(logit_list, dim=0)   # [B,C,H,W]
-        # probs  = torch.softmax(logits, dim=1)
-        import pdb
-        pdb.set_trace()
+        logit_list = []
+        for ds in pred_samples:
+            if hasattr(ds, "seg_logits") and ds.seg_logits is not None:
+                logit_list.append(ds.seg_logits.data)  # [C,H,W]
+            else:
+                raise RuntimeError(
+                    "predict() has no seg_logits. "
+                    "set in config: cfg.model.test_cfg['output_logits'] = True"
+                )
+
+        logits = torch.stack(logit_list, dim=0)   # [B,C,H,W]
+        probs  = torch.softmax(logits, dim=1)
         imgs, _, img_metas = preprocess_batch(model, batch)
-        logits = model.encode_decode(imgs, img_metas)
-        probs = torch.softmax(logits, dim=1)
+
+        # this part works without attacks, because encode_decode isn't using the predict method with the attack code
+        # logits = model.encode_decode(imgs, img_metas)
+
         set_mask, set_size = build_sets_from_probs(probs, q_hat)
         pred_labels = probs.argmax(dim=1)
 
@@ -221,7 +226,7 @@ def main():
             ss = set_size.float()
             num_classes = probs.size(1)
             ss = (ss - 1) / (num_classes - 1 + 1e-6) # uncertainty normalized to [0,1] -> 0 equals set size 1, 1 equals set size = num_classes
-            ss = ss.squeeze()
+            ss = ss.squeeze(dim=1)
             for b in range(ss.size(0)):
                 
                 save_heatmap(ss[b].cpu().numpy(), img_metas[b], alpha, q_hat, args.out)
@@ -233,7 +238,8 @@ def main():
             #     pdb.set_trace()
             #     save_heatmap(set_size[b,0].cpu().numpy(), img_metas[b][b], q_hat, args.out)
         
-        break
+        if i == 1:
+            break
                 
            
 

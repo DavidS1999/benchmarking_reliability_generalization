@@ -90,14 +90,12 @@ class EncoderDecoder(BaseSegmentor):
                  attack_loss: ConfigType=None,
                  attack_cfg: ConfigType=None,
                  normalize_mean_std: ConfigType=None,
-                 enable_normalization: bool = False, # look in tools/test.py -> comes from data_preprocessor.enable_normalization
+                 enable_normalization: bool = False, # look in tools/test.py -> can come from data_preprocessor.enable_normalization
                  perform_attack: bool=False,
                  adv_train_enable: bool=False,
                  adv_train_ratio: float=0.5,
                  mc_dropout: bool = False,
                  mc_runs: int = 8):
-        # import pdb
-        # pdb.set_trace()
         super().__init__(
             data_preprocessor=data_preprocessor, init_cfg=init_cfg)
         if pretrained is not None:
@@ -454,7 +452,7 @@ class EncoderDecoder(BaseSegmentor):
         """
 
         # shift normalize from data_preprocessor to loss/predict
-        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if not self.enable_normalization else torch.nn.Identity()
+        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if self.enable_normalization else torch.nn.Identity()
 
         if getattr(self, "_attack_ctx", False):
             adv_training_active = False
@@ -600,13 +598,17 @@ class EncoderDecoder(BaseSegmentor):
 
             self._attack_ctx = True # TODO: flag for currently applying adversarial
             with torch.enable_grad():
+
+                x_norm = normalize_fn(x)
                 
-                seg_logits = self.inference(normalize_fn(x), batch_img_metas)
+                seg_logits = self.inference(x_norm, batch_img_metas)
                 self._attack_ctx = True
                 try:
-                    loss_dict = self.loss(normalize_fn(x), data_samples)
+                    loss_dict = self.loss(x_norm, data_samples)
                 finally:
                     self._attack_ctx = False
+
+
                 loss_names = ['decode.loss_ce','decode.loss_evidential','decode.loss_dice',
                     'decode.loss_boundary','decode.loss_focal','decode.loss_huasdorff_disstance',
                     'decode.loss_kld','decode.loss_lovasz','decode.loss_ohem','decode.loss_silog',
@@ -734,7 +736,7 @@ class EncoderDecoder(BaseSegmentor):
         
 
         # shift normalize from data_preprocessor to loss/predict
-        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if not self.enable_normalization else torch.nn.Identity()
+        normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if self.enable_normalization else torch.nn.Identity()
         
         
         if self.perform_attack and self.attack_cfg is not None:
