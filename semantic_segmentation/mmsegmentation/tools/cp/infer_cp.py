@@ -179,7 +179,8 @@ def main():
 
         # logits = torch.stack(logit_list, dim=0)   # [B,C,H,W]
         # probs  = torch.softmax(logits, dim=1)
-
+        import pdb
+        pdb.set_trace()
         imgs, _, img_metas = preprocess_batch(model, batch)
         logits = model.encode_decode(imgs, img_metas)
         probs = torch.softmax(logits, dim=1)
