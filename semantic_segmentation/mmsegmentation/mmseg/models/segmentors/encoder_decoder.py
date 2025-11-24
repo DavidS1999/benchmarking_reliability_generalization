@@ -15,7 +15,7 @@ from mmseg.utils import (ConfigType, OptConfigType, OptMultiConfig,
                          OptSampleList, SampleList, add_prefix)
 from .base import BaseSegmentor
 
-from mmseg.models.utils import resize
+from mmseg.models.utils import resize, cp_uncertainty_from_logits
 from mmengine.structures import PixelData
 import math
 import pdb
@@ -487,6 +487,30 @@ class EncoderDecoder(BaseSegmentor):
 
         feats = self.extract_feat(inputs)
 
+        
+
+        # import pdb
+        # pdb.set_trace()
+
+        # cp_cfg = getattr(self, 'cp_cfg', None)
+        # cp_weights = None
+
+        # if (cp_cfg is not None) and cp_cfg.get('enabled', False):
+        #     with torch.no_grad():
+        #         seg_logits_cp = self.decode_head(feats)
+        #         B, C, H, W = seg_logits_cp.shape
+
+        #         cp_unc = cp_uncertainty_from_logits(seg_logits_cp, qhat = float(cp_cfg["q_hat"]), num_classes = C)
+            
+        #     cp_weight = float(cp_cfg.get("cp_weight", 1.0)) # default weight 1
+        #     mode = cp_cfg.get("weight_mode", "upweight_uncertain") # default upweight_uncertain
+
+        #     if mode == "upweight_uncertain":
+        #         cp_weights = 1.0 + cp_weight * (1-cp_unc) # upweight uncertain pixels
+        #     else:
+        #         cp_weights = 1.0 + cp_weight * cp_unc # upweight certain pixels
+        #####
+
         # add dropout
         # print("Warning! STOP")
         # if self.mc_dropout and self.mc_runs > 1:
@@ -525,12 +549,30 @@ class EncoderDecoder(BaseSegmentor):
         losses = dict()
 
         loss_decode = self._decode_head_forward_train(feats, data_samples)
+
+        # if cp_weights is not None:
+        #     # get GT for ignore_index
+        #     gt = torch.stack([ds.gt_sem_seg.data.squeeze(0) for ds in data_samples], dim = 0).to(inputs.device)
+        #     ignore_index = getattr(self.decode_head, "ignore_index", 255)
+        #     valid = (gt != ignore_index)
+
+        #     w = cp_weights.squeeze(1) # [B, H W]
+
+        #     for name, val in list(loss_decode.items()):
+        #         # use only real loss, not decode.acc_seg
+        #         if "loss" in name and val.dim() == 3:
+        #             weighted = (val * w)[valid]
+        #             loss_decode[name] = weighted.mean() if weighted.numel() > 0 else val.new_tensor(0.)
+        #         elif "loss" in name and val.dim() == 0:
+        #             loss_decode[name] = val
+
+
         losses.update(loss_decode)
 
         if self.with_auxiliary_head:
             loss_aux = self._auxiliary_head_forward_train(feats, data_samples)
             losses.update(loss_aux)
-
+        
         return losses
     
     def _apply_adversarial(

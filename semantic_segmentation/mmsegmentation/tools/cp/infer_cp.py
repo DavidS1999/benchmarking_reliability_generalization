@@ -225,7 +225,7 @@ def main():
         if args.save_heatmaps:
             ss = set_size.float()
             num_classes = probs.size(1)
-            ss = (ss - 1) / (num_classes - 1 + 1e-6) # uncertainty normalized to [0,1] -> 0 equals set size 1, 1 equals set size = num_classes
+            ss = (ss - 1) / (num_classes - 1) # uncertainty normalized to [0,1] -> 0 equals set size 1, 1 equals set size = num_classes
             ss = ss.squeeze(dim=1)
             for b in range(ss.size(0)):
                 

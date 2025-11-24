@@ -17,6 +17,7 @@ from .positional_encoding import (LearnedPositionalEncoding,
                                   SinePositionalEncoding)
 from .transformer import (DetrTransformerDecoder, DetrTransformerDecoderLayer,
                           DynamicConv, Transformer)
+from .cp_utils import cp_uncertainty_from_logits, aps_scores_for_batch, build_sets_from_probs, cp_quantile, preprocess_batch
 # isort: off
 from .wrappers import Upsample, resize
 from .san_layers import MLP, LayerNorm2d, cross_attn_layer
@@ -30,4 +31,5 @@ __all__ = [
     'get_uncertain_point_coords_with_randomness',
     'LearnedPositionalEncoding', 'SinePositionalEncoding',
     'DetrTransformerDecoderLayer', 'DetrTransformerDecoder', 'DynamicConv', 'Transformer',
+    'cp_uncertainty_from_logits', 'aps_scores_for_batch', 'build_sets_from_probs', 'cp_quantile', 'preprocess_batch'
 ]

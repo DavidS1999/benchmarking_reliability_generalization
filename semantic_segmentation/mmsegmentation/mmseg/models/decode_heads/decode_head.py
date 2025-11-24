@@ -9,10 +9,10 @@ from mmengine.model import BaseModule
 from torch import Tensor
 
 from mmseg.structures import build_pixel_sampler
-from mmseg.utils import ConfigType, SampleList
+from mmseg.utils import OptConfigType, ConfigType, SampleList
 from ..builder import build_loss
 from ..losses import accuracy
-from ..utils import resize
+from ..utils import resize, cp_uncertainty_from_logits
 
 
 class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
@@ -102,7 +102,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                  sampler=None,
                  align_corners=False,
                  init_cfg=dict(
-                     type='Normal', std=0.01, override=dict(name='conv_seg'))):
+                     type='Normal', std=0.01, override=dict(name='conv_seg')),
+                 cp_cfg: OptConfigType = None):
         super().__init__(init_cfg)
         self._init_inputs(in_channels, in_index, input_transform)
         self.channels = channels
@@ -114,6 +115,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
 
         self.ignore_index = ignore_index
         self.align_corners = align_corners
+        self.cp_cfg = cp_cfg
 
         if out_channels is None:
             if num_classes == 2:
@@ -315,23 +317,63 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             seg_weight = None
         seg_label = seg_label.squeeze(1)
 
+        # new code start
+
+        B, C, H, W = seg_logits.shape
+        device = seg_logits.device
+
+        cp_cfg = getattr(self, 'cp_cfg', None)
+        cp_weights = None  # [B,H,W]
+
+        if cp_cfg is not None and cp_cfg.get("enabled", False):
+            with torch.no_grad():
+                cp_unc = cp_uncertainty_from_logits(
+                    seg_logits,
+                    q_hat = float(cp_cfg["q_hat"]),
+                    num_classes = C,
+                ) # [B,1,H,W]
+            cp_unc = cp_unc.squeeze(1) # [B,H,W]
+            cp_unc_mean = cp_unc.mean().item()
+            print(f"Mean CP uncertainty in batch: {cp_unc_mean:.4f}")
+
+            lam = float(cp_cfg.get("cp_weight", 1.0)) # default weight is 1
+            mode = cp_cfg.get("weight_mode", "upweight_uncertain")
+
+            if mode == "upweight_uncertain":
+                cp_weights = 1.0 + lam * cp_unc         # more uncertain pixels get higher weight
+            else:
+                cp_weights = 1.0 + lam * (1 - cp_unc)   # more certain pixels get higher weight
+
+        # new code end
+
         if not isinstance(self.loss_decode, nn.ModuleList):
             losses_decode = [self.loss_decode]
         else:
             losses_decode = self.loss_decode
+
         for loss_decode in losses_decode:
-            if loss_decode.loss_name not in loss:
-                loss[loss_decode.loss_name] = loss_decode(
+            
+            per_pixel = loss_decode(
                     seg_logits,
                     seg_label,
                     weight=seg_weight,
                     ignore_index=self.ignore_index)
+            
+            if cp_weights is not None and per_pixel.dim() == 3:
+                valid = (seg_label != self.ignore_index) # [B,H,W]  bool
+                w = cp_weights
+                weighted = (per_pixel * w)[valid]
+                loss_val = weighted.mean() if weighted.numel() > 0 else per_pixel.new_tensor(0.0)
             else:
-                loss[loss_decode.loss_name] += loss_decode(
-                    seg_logits,
-                    seg_label,
-                    weight=seg_weight,
-                    ignore_index=self.ignore_index)
+                # regular loss with mean over valid pixels
+                valid = seg_label != self.ignore_index
+                loss_val = per_pixel[valid].mean() if per_pixel[valid].numel() > 0 else per_pixel.new_tensor(0.0)
+            
+            name = loss_decode.loss_name
+            if name not in loss:
+                loss[name] = loss_val
+            else:
+                loss[name] += loss_val
 
         loss['acc_seg'] = accuracy(
             seg_logits, seg_label, ignore_index=self.ignore_index)

@@ -1,0 +1,54 @@
+import os
+_base_ = [
+    os.path.join(os.environ["MMSEG_CONFIGS"], '_base_/models/segformer_mit-b0.py'),
+    os.path.join(os.environ["MMSEG_CONFIGS"], '_base_/datasets/cityscapes.py'),
+    os.path.join(os.environ["MMSEG_CONFIGS"], '_base_/default_runtime.py'),
+    os.path.join(os.environ["MMSEG_CONFIGS"], '_base_/schedules/schedule_160k.py')
+]
+crop_size = (1024, 1024)
+data_preprocessor = dict(size=crop_size)
+checkpoint = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b0_20220624-7e0fe6dd.pth'  # noqa
+cp_cfg = dict(
+    enabled = True,
+    q_hat = 0.9998999238014221, # from alpha 0.4 calibration
+    mode = 'setsize',
+    cp_weight = 0.5, # weight of cp uncertainty on loss
+    weight_mode = "upweight_uncertain", # options: "upweight_uncertain" or "upweight_certain"
+)
+model = dict(
+    decode_head=dict(
+        cp_cfg = cp_cfg,
+    ),
+    mc_dropout = False,
+    data_preprocessor=data_preprocessor,
+    backbone=dict(init_cfg=dict(type='Pretrained', checkpoint=checkpoint)),
+    test_cfg=dict(mode='slide', crop_size=(1024, 1024), stride=(768, 768)),)
+
+optim_wrapper = dict(
+    _delete_=True,
+    type='OptimWrapper',
+    optimizer=dict(
+        type='AdamW', lr=0.00006, betas=(0.9, 0.999), weight_decay=0.01),
+    paramwise_cfg=dict(
+        custom_keys={
+            'pos_block': dict(decay_mult=0.),
+            'norm': dict(decay_mult=0.),
+            'head': dict(lr_mult=10.)
+        }))
+
+param_scheduler = [
+    dict(
+        type='LinearLR', start_factor=1e-6, by_epoch=False, begin=0, end=1500),
+    dict(
+        type='PolyLR',
+        eta_min=0.0,
+        power=1.0,
+        begin=1500,
+        end=160000,
+        by_epoch=False,
+    )
+]
+
+train_dataloader = dict(batch_size=1, num_workers=4)
+val_dataloader = dict(batch_size=1, num_workers=4)
+test_dataloader = val_dataloader
