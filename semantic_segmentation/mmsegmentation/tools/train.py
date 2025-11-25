@@ -87,6 +87,10 @@ def main():
     # resume training
     cfg.resume = args.resume
 
+    # if enable_normalization is set in model, deactivate in data_preprocessor
+    if "enable_normalization" in cfg.model:
+        cfg.data_preprocessor['enable_normalization'] = not cfg.model["enable_normalization"]
+
     # build the runner from config
     if 'runner_type' not in cfg:
         # build the default runner

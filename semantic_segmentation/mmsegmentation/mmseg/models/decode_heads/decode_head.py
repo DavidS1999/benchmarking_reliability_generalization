@@ -361,7 +361,8 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             
             if cp_weights is not None and per_pixel.dim() == 3:
                 valid = (seg_label != self.ignore_index) # [B,H,W]  bool
-                w = cp_weights
+                mean_w = cp_weights[valid].mean().detach()
+                w = cp_weights / mean_w
                 weighted = (per_pixel * w)[valid]
                 loss_val = weighted.mean() if weighted.numel() > 0 else per_pixel.new_tensor(0.0)
             else:

@@ -437,8 +437,6 @@ class EncoderDecoder(BaseSegmentor):
         return x_best_adv*255
         
     def loss(self, inputs: Tensor, data_samples: SampleList) -> dict:
-        import pdb
-        # pdb.set_trace()
         """Calculate losses from a batch of inputs and data samples.
 
         Args:
@@ -485,9 +483,7 @@ class EncoderDecoder(BaseSegmentor):
 
         inputs = normalize(inputs)
 
-        feats = self.extract_feat(inputs)
-
-        
+        feats = self.extract_feat(inputs)        
 
         # import pdb
         # pdb.set_trace()
@@ -780,7 +776,6 @@ class EncoderDecoder(BaseSegmentor):
         # shift normalize from data_preprocessor to loss/predict
         normalize = torchvision.transforms.Normalize(mean = self.mean, std=self.std) if self.enable_normalization else torch.nn.Identity()
         
-        
         if self.perform_attack and self.attack_cfg is not None:
             
             inputs = self._apply_adversarial(
@@ -794,6 +789,8 @@ class EncoderDecoder(BaseSegmentor):
 
         # seg_logits = self.inference(normalize(inputs), batch_img_metas)
         # Monte Carlo Dropout
+
+        inputs = inputs.to(torch.float32)
 
         if not self.mc_dropout or self.mc_runs == 1:
             seg_logits = self.inference(normalize(inputs), batch_img_metas)

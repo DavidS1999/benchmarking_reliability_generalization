@@ -1,13 +1,7 @@
 import os
 _base_ = [
-    os.path.join(os.environ["MMSEG_CONFIGS"], '_base_/models/segformer_mit-b0.py'),
-    os.path.join(os.environ["MMSEG_CONFIGS"], '_base_/datasets/cityscapes.py'),
-    os.path.join(os.environ["MMSEG_CONFIGS"], '_base_/default_runtime.py'),
-    os.path.join(os.environ["MMSEG_CONFIGS"], '_base_/schedules/schedule_160k.py')
+    os.path.join(os.environ["MMSEG_CONFIGS"], 'segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py')
 ]
-crop_size = (1024, 1024)
-data_preprocessor = dict(size=crop_size)
-checkpoint = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b0_20220624-7e0fe6dd.pth'  # noqa
 cp_cfg = dict(
     enabled = True,
     q_hat = 0.9998999238014221, # from alpha 0.4 calibration
@@ -16,39 +10,39 @@ cp_cfg = dict(
     weight_mode = "upweight_uncertain", # options: "upweight_uncertain" or "upweight_certain"
 )
 model = dict(
+    enable_normalization = True,
+    normalize_mean_std=dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375]),
+    perform_attack = False, # False # attacks while testing
+    adv_train_enable = False,      # attacks while training
+    mc_dropout = False,
+    mc_runs = 8,
+    adv_train_ratio = 0.5,
     decode_head=dict(
         cp_cfg = cp_cfg,
+        loss_decode=dict(
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction="none" # added reduction='none', if error on loss -> line before `loss.backward()`, add loss=loss.mean()
+            # type='EvidentialMSELoss', loss_weight = 1.0, kl_strength = 1.0, reduction = "mean"
+            )
     ),
-    mc_dropout = False,
-    data_preprocessor=data_preprocessor,
-    backbone=dict(init_cfg=dict(type='Pretrained', checkpoint=checkpoint)),
-    test_cfg=dict(mode='slide', crop_size=(1024, 1024), stride=(768, 768)),)
+    attack_loss = dict(
+        type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction="none"
+        # type='EvidentialMSELoss', loss_weight = 1.0, kl_strength = 1.0, reduction = "none"
+    ),
+    attack_cfg = {"name": "cospgd", "norm": "linf","epsilon": 4,"alpha": 0.01, "iterations": 20, "targeted": False}
+    # attack_cfg = {"name": "pgd", "norm": "l2","epsilon": 8,"alpha": 0.01, "iterations": 20}
+)
 
-optim_wrapper = dict(
-    _delete_=True,
-    type='OptimWrapper',
-    optimizer=dict(
-        type='AdamW', lr=0.00006, betas=(0.9, 0.999), weight_decay=0.01),
-    paramwise_cfg=dict(
-        custom_keys={
-            'pos_block': dict(decay_mult=0.),
-            'norm': dict(decay_mult=0.),
-            'head': dict(lr_mult=10.)
-        }))
-
-param_scheduler = [
+custom_imports = dict(
+    imports=['mmseg_custom.hooks.uncertainty_dump'],
+    allow_failed_imports=False
+)
+custom_hooks = [
     dict(
-        type='LinearLR', start_factor=1e-6, by_epoch=False, begin=0, end=1500),
-    dict(
-        type='PolyLR',
-        eta_min=0.0,
-        power=1.0,
-        begin=1500,
-        end=160000,
-        by_epoch=False,
+        type='UncertaintyDumpHook',
+        save_maps=True
     )
 ]
 
-train_dataloader = dict(batch_size=1, num_workers=4)
-val_dataloader = dict(batch_size=1, num_workers=4)
+train_dataloader = dict(batch_size=2, num_workers=8, pin_memory=True, persistent_workers=True)
+val_dataloader = dict(batch_size=1, num_workers=8)
 test_dataloader = val_dataloader

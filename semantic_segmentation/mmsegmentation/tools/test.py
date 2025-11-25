@@ -121,11 +121,12 @@ def main(args_from_evals=None):
         cfg.test_evaluator['output_dir'] = args.out
         cfg.test_evaluator['keep_results'] = True
 
+    
+    # if enable_normalization is set in model, deactivate in data_preprocessor
+    if "enable_normalization" in cfg.model:
+        cfg.data_preprocessor['enable_normalization'] = not cfg.model["enable_normalization"]
+    
     # build the runner from config
-    # if enable_normalization is not set in model, and deactivated in data_preprocessor, activate in model
-    if not cfg.model["enable_normalization"]:
-        cfg.data_preprocessor['enable_normalization'] = not cfg.data_preprocessor['enable_normalization']
-
     runner = Runner.from_cfg(cfg)
 
     # start testing

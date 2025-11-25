@@ -5,7 +5,7 @@ _base_ = [
 model = dict(
     enable_normalization = True,
     normalize_mean_std=dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375]),
-    perform_attack = True, # False # attacks while testing
+    perform_attack = False, # False # attacks while testing
     adv_train_enable = False,      # attacks while training
     mc_dropout = False,
     mc_runs = 8,
@@ -35,6 +35,6 @@ custom_hooks = [
     )
 ]
 
-train_dataloader = dict(batch_size=4, num_workers=12, pin_memory=True, persistent_workers=True)
+train_dataloader = dict(batch_size=2, num_workers=8, pin_memory=True, persistent_workers=True)
 val_dataloader = dict(batch_size=1, num_workers=8)
 test_dataloader = val_dataloader

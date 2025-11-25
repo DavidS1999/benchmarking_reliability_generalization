@@ -7,7 +7,7 @@ data_preprocessor = dict(
     bgr_to_rgb=True,
     pad_val=0,
     seg_pad_val=255,
-    enable_normalization = False,
+    enable_normalization = True,
     corruption = None,
 )
 model = dict(

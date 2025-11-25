@@ -2,16 +2,23 @@ import os
 _base_ = [
     os.path.join(os.environ["MMSEG_CONFIGS"], 'segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py')
 ]
-
+cp_cfg = dict(
+    enabled = True,
+    q_hat = 0.9998999238014221, # from alpha 0.4 calibration
+    mode = 'setsize',
+    cp_weight = 0.5, # weight of cp uncertainty on loss
+    weight_mode = "upweight_uncertain", # options: "upweight_uncertain" or "upweight_certain"
+)
 model = dict(
     enable_normalization = True,
     normalize_mean_std=dict(mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375]),
     perform_attack = True, # False # attacks while testing
-    adv_train_enable = False,      # attacks while training
+    adv_train_enable = True,      # attacks while training
     mc_dropout = False,
     mc_runs = 8,
     adv_train_ratio = 0.5,
     decode_head=dict(
+        cp_cfg = cp_cfg,
         loss_decode=dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, reduction="none" # added reduction='none', if error on loss -> line before `loss.backward()`, add loss=loss.mean()
             # type='EvidentialMSELoss', loss_weight = 1.0, kl_strength = 1.0, reduction = "mean"
@@ -36,6 +43,6 @@ custom_hooks = [
     )
 ]
 
-train_dataloader = dict(batch_size=4, num_workers=8, pin_memory=True, persistent_workers=True)
+train_dataloader = dict(batch_size=2, num_workers=8, pin_memory=True, persistent_workers=True)
 val_dataloader = dict(batch_size=1, num_workers=8)
 test_dataloader = val_dataloader
