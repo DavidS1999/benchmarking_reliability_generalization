@@ -19,8 +19,6 @@ def preprocess_batch(model, batch):
 @torch.no_grad()
 def aps_scores_for_batch(logits: torch.Tensor, labels: torch.Tensor, randomized: bool = False):
     """APS-Score per pixel."""
-    import pdb
-    pdb.set_trace()
     B, C, H, W = logits.shape
 
     probs = torch.softmax(logits, dim=1).permute(0,2,3,1).reshape(-1, C)

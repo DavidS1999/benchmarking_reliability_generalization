@@ -1,0 +1,673 @@
+Started at Tue Dec 16 11:34:28 AM CET 2025
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/ops_dcnv3/modules/dcnv3.py:20: UserWarning: Now, we support DCNv4 in InternImage.
+  warnings.warn('Now, we support DCNv4 in InternImage.')
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/backbones/__init__.py:35: UserWarning: DinoVisionBackbone import failed.
+  warnings.warn("DinoVisionBackbone import failed.")
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/builder.py:36: UserWarning: ``build_loss`` would be deprecated soon, please use ``mmseg.registry.MODELS.build()`` 
+  warnings.warn('``build_loss`` would be deprecated soon, please use '
+Number of parameters:  3720051
+Loads checkpoint by local backend from path: ../checkpoints/segformer/segformer_mit-b0_8x1_1024x1024_160k_cityscapes_20211208_101857-e7f88502.pth
+[0010/500] valid_pix=18,275,842  cp_cov=0.9964
+[0020/500] valid_pix=36,370,005  cp_cov=0.9972
+[0030/500] valid_pix=54,438,113  cp_cov=0.9975
+[0040/500] valid_pix=72,191,091  cp_cov=0.9978
+[0050/500] valid_pix=90,504,824  cp_cov=0.9979
+[0060/500] valid_pix=108,334,181  cp_cov=0.9977
+[0070/500] valid_pix=126,512,440  cp_cov=0.9977
+[0080/500] valid_pix=144,245,225  cp_cov=0.9976
+[0090/500] valid_pix=162,015,395  cp_cov=0.9975
+[0100/500] valid_pix=179,619,406  cp_cov=0.9972
+[0110/500] valid_pix=197,884,800  cp_cov=0.9972
+[0120/500] valid_pix=216,021,987  cp_cov=0.9973
+[0130/500] valid_pix=233,984,793  cp_cov=0.9972
+[0140/500] valid_pix=252,173,373  cp_cov=0.9973
+[0150/500] valid_pix=269,878,290  cp_cov=0.9971
+[0160/500] valid_pix=288,080,467  cp_cov=0.9972
+[0170/500] valid_pix=306,276,314  cp_cov=0.9971
+[0180/500] valid_pix=323,922,406  cp_cov=0.9971
+[0190/500] valid_pix=341,710,275  cp_cov=0.9971
+[0200/500] valid_pix=359,470,562  cp_cov=0.9971
+[0210/500] valid_pix=377,792,522  cp_cov=0.9971
+[0220/500] valid_pix=395,981,967  cp_cov=0.9962
+[0230/500] valid_pix=414,249,308  cp_cov=0.9963
+[0240/500] valid_pix=431,737,017  cp_cov=0.9964
+[0250/500] valid_pix=449,288,743  cp_cov=0.9965
+[0260/500] valid_pix=467,416,996  cp_cov=0.9965
+[0270/500] valid_pix=486,139,434  cp_cov=0.9966
+[0280/500] valid_pix=505,338,888  cp_cov=0.9966
+[0290/500] valid_pix=522,140,543  cp_cov=0.9966
+[0300/500] valid_pix=540,695,264  cp_cov=0.9967
+[0310/500] valid_pix=557,790,270  cp_cov=0.9967
+[0320/500] valid_pix=570,748,914  cp_cov=0.9965
+[0330/500] valid_pix=589,367,469  cp_cov=0.9965
+[0340/500] valid_pix=608,594,720  cp_cov=0.9966
+[0350/500] valid_pix=627,598,960  cp_cov=0.9966
+[0360/500] valid_pix=647,024,821  cp_cov=0.9967
+[0370/500] valid_pix=666,376,786  cp_cov=0.9968
+[0380/500] valid_pix=685,686,382  cp_cov=0.9968
+[0390/500] valid_pix=705,131,393  cp_cov=0.9969
+[0400/500] valid_pix=724,214,004  cp_cov=0.9969
+[0410/500] valid_pix=743,679,512  cp_cov=0.9970
+[0420/500] valid_pix=762,988,668  cp_cov=0.9970
+[0430/500] valid_pix=782,500,649  cp_cov=0.9971
+[0440/500] valid_pix=801,806,603  cp_cov=0.9971
+[0450/500] valid_pix=821,401,355  cp_cov=0.9972
+[0460/500] valid_pix=840,014,561  cp_cov=0.9972
+[0470/500] valid_pix=859,468,613  cp_cov=0.9972
+[0480/500] valid_pix=877,904,115  cp_cov=0.9972
+[0490/500] valid_pix=897,470,736  cp_cov=0.9972
+[0500/500] valid_pix=916,636,241  cp_cov=0.9973
+
+Saved metrics to: ./work_dirs/cp_eval/train_1-test_2/metrics_cp_uncertainty.json
+{
+  "ece_style_conf_from_setsize": 0.3780003881483984,
+  "ece_style_bins": {
+    "set_size": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "bin_fraction": [
+      0.02741823951078103,
+      0.02848010457400189,
+      0.02778003515573415,
+      0.034154072902295385,
+      0.04261962297866423,
+      0.050630091768322304,
+      0.056336163343993294,
+      0.06139303955362594,
+      0.06410656307445736,
+      0.06631463200024185,
+      0.06646205580257,
+      0.06677392433581512,
+      0.06314359874845926,
+      0.06088492850677066,
+      0.05734667324810693,
+      0.056820543057712246,
+      0.05280444612051947,
+      0.05011496594318051,
+      0.06641629937474837
+    ],
+    "bin_accuracy": [
+      0.9568599320912576,
+      0.9929564570394366,
+      0.9818388075770885,
+      0.9630874522999926,
+      0.9475612357340426,
+      0.9347101556653088,
+      0.9168175016429683,
+      0.8987917121760012,
+      0.8744713605038488,
+      0.8554772823754394,
+      0.8358607184662092,
+      0.8164614052624586,
+      0.7982720058847564,
+      0.7829687515342416,
+      0.7597882731852784,
+      0.7330286523619287,
+      0.6862972630590394,
+      0.6407776016967863,
+      0.5610801039106919
+    ],
+    "bin_confidence": [
+      1.0,
+      0.9444444444444444,
+      0.8888888888888888,
+      0.8333333333333334,
+      0.7777777777777778,
+      0.7222222222222222,
+      0.6666666666666667,
+      0.6111111111111112,
+      0.5555555555555556,
+      0.5,
+      0.4444444444444444,
+      0.38888888888888884,
+      0.33333333333333337,
+      0.2777777777777778,
+      0.2222222222222222,
+      0.16666666666666663,
+      0.11111111111111116,
+      0.05555555555555558,
+      0.0
+    ]
+  },
+  "split": "val",
+  "num_classes": 19,
+  "ignore_index": 255,
+  "q_hat": 0.9999997615814209,
+  "alpha": 0.2,
+  "target_coverage_(1-alpha)": 0.8,
+  "total_valid_pixels": 916636241,
+  "top1_error_rate": 0.1789999998483586,
+  "cp_pixel_coverage_(y_in_set)": 0.9972672092942046,
+  "cp_mean_set_size": 10.983425294222029,
+  "uncertainty_error_AUROC": 0.7176278880339694,
+  "uncertainty_error_AUPRC": 0.3811904222575891,
+  "risk_coverage_AURC": 0.08817844734765758
+}
+Saved plots to: ./work_dirs/cp_eval/train_1-test_2
+Freed CUDA cache
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/ops_dcnv3/modules/dcnv3.py:20: UserWarning: Now, we support DCNv4 in InternImage.
+  warnings.warn('Now, we support DCNv4 in InternImage.')
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/backbones/__init__.py:35: UserWarning: DinoVisionBackbone import failed.
+  warnings.warn("DinoVisionBackbone import failed.")
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/builder.py:36: UserWarning: ``build_loss`` would be deprecated soon, please use ``mmseg.registry.MODELS.build()`` 
+  warnings.warn('``build_loss`` would be deprecated soon, please use '
+Number of parameters:  3720051
+Loads checkpoint by local backend from path: ../checkpoints/segformer/segformer_mit-b0_8xb4_1024x1024_160k_cityscapes_cospgd_trained.pth
+[0010/500] valid_pix=18,275,842  cp_cov=0.9996
+[0020/500] valid_pix=36,370,005  cp_cov=0.9994
+[0030/500] valid_pix=54,438,113  cp_cov=0.9994
+[0040/500] valid_pix=72,191,091  cp_cov=0.9994
+[0050/500] valid_pix=90,504,824  cp_cov=0.9995
+[0060/500] valid_pix=108,334,181  cp_cov=0.9994
+[0070/500] valid_pix=126,512,440  cp_cov=0.9994
+[0080/500] valid_pix=144,245,225  cp_cov=0.9994
+[0090/500] valid_pix=162,015,395  cp_cov=0.9994
+[0100/500] valid_pix=179,619,406  cp_cov=0.9994
+[0110/500] valid_pix=197,884,800  cp_cov=0.9994
+[0120/500] valid_pix=216,021,987  cp_cov=0.9994
+[0130/500] valid_pix=233,984,793  cp_cov=0.9993
+[0140/500] valid_pix=252,173,373  cp_cov=0.9993
+[0150/500] valid_pix=269,878,290  cp_cov=0.9993
+[0160/500] valid_pix=288,080,467  cp_cov=0.9993
+[0170/500] valid_pix=306,276,314  cp_cov=0.9993
+[0180/500] valid_pix=323,922,406  cp_cov=0.9994
+[0190/500] valid_pix=341,710,275  cp_cov=0.9994
+[0200/500] valid_pix=359,470,562  cp_cov=0.9994
+[0210/500] valid_pix=377,792,522  cp_cov=0.9994
+[0220/500] valid_pix=395,981,967  cp_cov=0.9994
+[0230/500] valid_pix=414,249,308  cp_cov=0.9994
+[0240/500] valid_pix=431,737,017  cp_cov=0.9994
+[0250/500] valid_pix=449,288,743  cp_cov=0.9994
+[0260/500] valid_pix=467,416,996  cp_cov=0.9994
+[0270/500] valid_pix=486,139,434  cp_cov=0.9994
+[0280/500] valid_pix=505,338,888  cp_cov=0.9994
+[0290/500] valid_pix=522,140,543  cp_cov=0.9994
+[0300/500] valid_pix=540,695,264  cp_cov=0.9994
+[0310/500] valid_pix=557,790,270  cp_cov=0.9994
+[0320/500] valid_pix=570,748,914  cp_cov=0.9994
+[0330/500] valid_pix=589,367,469  cp_cov=0.9994
+[0340/500] valid_pix=608,594,720  cp_cov=0.9994
+[0350/500] valid_pix=627,598,960  cp_cov=0.9994
+[0360/500] valid_pix=647,024,821  cp_cov=0.9994
+[0370/500] valid_pix=666,376,786  cp_cov=0.9994
+[0380/500] valid_pix=685,686,382  cp_cov=0.9995
+[0390/500] valid_pix=705,131,393  cp_cov=0.9995
+[0400/500] valid_pix=724,214,004  cp_cov=0.9995
+[0410/500] valid_pix=743,679,512  cp_cov=0.9995
+[0420/500] valid_pix=762,988,668  cp_cov=0.9995
+[0430/500] valid_pix=782,500,649  cp_cov=0.9995
+[0440/500] valid_pix=801,806,603  cp_cov=0.9995
+[0450/500] valid_pix=821,401,355  cp_cov=0.9995
+[0460/500] valid_pix=840,014,561  cp_cov=0.9995
+[0470/500] valid_pix=859,468,613  cp_cov=0.9995
+[0480/500] valid_pix=877,904,115  cp_cov=0.9995
+[0490/500] valid_pix=897,470,736  cp_cov=0.9995
+[0500/500] valid_pix=916,636,241  cp_cov=0.9995
+
+Saved metrics to: ./work_dirs/cp_eval/train_2-test_2/metrics_cp_uncertainty.json
+{
+  "ece_style_conf_from_setsize": 0.41964597231227196,
+  "ece_style_bins": {
+    "set_size": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "bin_fraction": [
+      0.09920836961540123,
+      0.16896853852410576,
+      0.032205545318385466,
+      0.01944118310286185,
+      0.01667968635335683,
+      0.01936005059175922,
+      0.025180808883160884,
+      0.03346482893425114,
+      0.03999460894106193,
+      0.0454848653534745,
+      0.048323749398863226,
+      0.04975826283089324,
+      0.048962313502941675,
+      0.050740678711611184,
+      0.049876255110886454,
+      0.049944577742262755,
+      0.04841990313581765,
+      0.056137790214209955,
+      0.09784798373469504
+    ],
+    "bin_accuracy": [
+      0.9956502775897161,
+      0.9984079175899623,
+      0.9906259897692371,
+      0.9867931824332806,
+      0.9848021528915336,
+      0.9831558711074035,
+      0.9803650884109545,
+      0.9775486449503383,
+      0.9739556800467686,
+      0.9679456368246853,
+      0.9602363907683208,
+      0.95035310830617,
+      0.9382276733141297,
+      0.9236738306384901,
+      0.9062313949292564,
+      0.8939194657348102,
+      0.8678481824684243,
+      0.8335780024432773,
+      0.7270765983586671
+    ],
+    "bin_confidence": [
+      1.0,
+      0.9444444444444444,
+      0.8888888888888888,
+      0.8333333333333334,
+      0.7777777777777778,
+      0.7222222222222222,
+      0.6666666666666667,
+      0.6111111111111112,
+      0.5555555555555556,
+      0.5,
+      0.4444444444444444,
+      0.38888888888888884,
+      0.33333333333333337,
+      0.2777777777777778,
+      0.2222222222222222,
+      0.16666666666666663,
+      0.11111111111111116,
+      0.05555555555555558,
+      0.0
+    ]
+  },
+  "split": "val",
+  "num_classes": 19,
+  "ignore_index": 255,
+  "q_hat": 0.9999997615814209,
+  "alpha": 0.2,
+  "target_coverage_(1-alpha)": 0.8,
+  "total_valid_pixels": 916636241,
+  "top1_error_rate": 0.06929471273217966,
+  "cp_pixel_coverage_(y_in_set)": 0.9995335499723057,
+  "cp_mean_set_size": 9.785397291530392,
+  "uncertainty_error_AUROC": 0.8197447657224467,
+  "uncertainty_error_AUPRC": 0.3609049992054037,
+  "risk_coverage_AURC": 0.018234775744815086
+}
+Saved plots to: ./work_dirs/cp_eval/train_2-test_2
+Freed CUDA cache
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/ops_dcnv3/modules/dcnv3.py:20: UserWarning: Now, we support DCNv4 in InternImage.
+  warnings.warn('Now, we support DCNv4 in InternImage.')
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/backbones/__init__.py:35: UserWarning: DinoVisionBackbone import failed.
+  warnings.warn("DinoVisionBackbone import failed.")
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/builder.py:36: UserWarning: ``build_loss`` would be deprecated soon, please use ``mmseg.registry.MODELS.build()`` 
+  warnings.warn('``build_loss`` would be deprecated soon, please use '
+Number of parameters:  3720051
+Loads checkpoint by local backend from path: ../checkpoints/segformer/segformer_mit-b0_8xb1_1024x1024_160k_cityscapes_cp_trained.pth
+[0010/500] valid_pix=18,275,842  cp_cov=0.4945
+[0020/500] valid_pix=36,370,005  cp_cov=0.4853
+[0030/500] valid_pix=54,438,113  cp_cov=0.4984
+[0040/500] valid_pix=72,191,091  cp_cov=0.4977
+[0050/500] valid_pix=90,504,824  cp_cov=0.5205
+[0060/500] valid_pix=108,334,181  cp_cov=0.5177
+[0070/500] valid_pix=126,512,440  cp_cov=0.5134
+[0080/500] valid_pix=144,245,225  cp_cov=0.5122
+[0090/500] valid_pix=162,015,395  cp_cov=0.5143
+[0100/500] valid_pix=179,619,406  cp_cov=0.5143
+[0110/500] valid_pix=197,884,800  cp_cov=0.5138
+[0120/500] valid_pix=216,021,987  cp_cov=0.5139
+[0130/500] valid_pix=233,984,793  cp_cov=0.5187
+[0140/500] valid_pix=252,173,373  cp_cov=0.5171
+[0150/500] valid_pix=269,878,290  cp_cov=0.5206
+[0160/500] valid_pix=288,080,467  cp_cov=0.5278
+[0170/500] valid_pix=306,276,314  cp_cov=0.5271
+[0180/500] valid_pix=323,922,406  cp_cov=0.5206
+[0190/500] valid_pix=341,710,275  cp_cov=0.5237
+[0200/500] valid_pix=359,470,562  cp_cov=0.5224
+[0210/500] valid_pix=377,792,522  cp_cov=0.5234
+[0220/500] valid_pix=395,981,967  cp_cov=0.5248
+[0230/500] valid_pix=414,249,308  cp_cov=0.5267
+[0240/500] valid_pix=431,737,017  cp_cov=0.5295
+[0250/500] valid_pix=449,288,743  cp_cov=0.5258
+[0260/500] valid_pix=467,416,996  cp_cov=0.5305
+[0270/500] valid_pix=486,139,434  cp_cov=0.5296
+[0280/500] valid_pix=505,338,888  cp_cov=0.5287
+[0290/500] valid_pix=522,140,543  cp_cov=0.5321
+[0300/500] valid_pix=540,695,264  cp_cov=0.5304
+[0310/500] valid_pix=557,790,270  cp_cov=0.5300
+[0320/500] valid_pix=570,748,914  cp_cov=0.5312
+[0330/500] valid_pix=589,367,469  cp_cov=0.5323
+[0340/500] valid_pix=608,594,720  cp_cov=0.5325
+[0350/500] valid_pix=627,598,960  cp_cov=0.5372
+[0360/500] valid_pix=647,024,821  cp_cov=0.5378
+[0370/500] valid_pix=666,376,786  cp_cov=0.5400
+[0380/500] valid_pix=685,686,382  cp_cov=0.5395
+[0390/500] valid_pix=705,131,393  cp_cov=0.5406
+[0400/500] valid_pix=724,214,004  cp_cov=0.5411
+[0410/500] valid_pix=743,679,512  cp_cov=0.5425
+[0420/500] valid_pix=762,988,668  cp_cov=0.5448
+[0430/500] valid_pix=782,500,649  cp_cov=0.5443
+[0440/500] valid_pix=801,806,603  cp_cov=0.5432
+[0450/500] valid_pix=821,401,355  cp_cov=0.5429
+[0460/500] valid_pix=840,014,561  cp_cov=0.5400
+[0470/500] valid_pix=859,468,613  cp_cov=0.5423
+[0480/500] valid_pix=877,904,115  cp_cov=0.5436
+[0490/500] valid_pix=897,470,736  cp_cov=0.5445
+[0500/500] valid_pix=916,636,241  cp_cov=0.5441
+
+Saved metrics to: ./work_dirs/cp_eval/train_3-test_2/metrics_cp_uncertainty.json
+{
+  "ece_style_conf_from_setsize": 0.45058199488705963,
+  "ece_style_bins": {
+    "set_size": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "bin_fraction": [
+      0.027922812622024618,
+      0.056380091347490155,
+      0.07572953467808612,
+      0.06813220578303536,
+      0.06590561915170884,
+      0.0651070875562294,
+      0.06433696199450181,
+      0.06262033774420665,
+      0.06036804080496747,
+      0.06042486269097885,
+      0.05965501641124835,
+      0.055107325829592636,
+      0.04941183424145239,
+      0.04535463484909277,
+      0.042335903016079854,
+      0.03873551624062396,
+      0.0355727239896464,
+      0.03361267820524674,
+      0.033286812843787615
+    ],
+    "bin_accuracy": [
+      0.07048519749629834,
+      0.07207290010542755,
+      0.056101497345671825,
+      0.08006541104577025,
+      0.09821979362564526,
+      0.11119123352139781,
+      0.11960338314822982,
+      0.12379167614618458,
+      0.12868172556173396,
+      0.1298727428597355,
+      0.13380594510620047,
+      0.14367318420160113,
+      0.1492818110688885,
+      0.15206131991805782,
+      0.15680070899237997,
+      0.16605532110315502,
+      0.17512066642361235,
+      0.1836310290494515,
+      0.1929498390119868
+    ],
+    "bin_confidence": [
+      1.0,
+      0.9444444444444444,
+      0.8888888888888888,
+      0.8333333333333334,
+      0.7777777777777778,
+      0.7222222222222222,
+      0.6666666666666667,
+      0.6111111111111112,
+      0.5555555555555556,
+      0.5,
+      0.4444444444444444,
+      0.38888888888888884,
+      0.33333333333333337,
+      0.2777777777777778,
+      0.2222222222222222,
+      0.16666666666666663,
+      0.11111111111111116,
+      0.05555555555555558,
+      0.0
+    ]
+  },
+  "split": "val",
+  "num_classes": 19,
+  "ignore_index": 255,
+  "q_hat": 0.999990701675415,
+  "alpha": 0.2,
+  "target_coverage_(1-alpha)": 0.8,
+  "total_valid_pixels": 916636241,
+  "top1_error_rate": 0.877421942342775,
+  "cp_pixel_coverage_(y_in_set)": 0.5441029676678472,
+  "cp_mean_set_size": 9.151286061795586,
+  "uncertainty_error_AUROC": 0.40403460278572206,
+  "uncertainty_error_AUPRC": 0.8494001539222914,
+  "risk_coverage_AURC": 0.8823432609507325
+}
+Saved plots to: ./work_dirs/cp_eval/train_3-test_2
+Freed CUDA cache
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/ops_dcnv3/modules/dcnv3.py:20: UserWarning: Now, we support DCNv4 in InternImage.
+  warnings.warn('Now, we support DCNv4 in InternImage.')
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/backbones/__init__.py:35: UserWarning: DinoVisionBackbone import failed.
+  warnings.warn("DinoVisionBackbone import failed.")
+/pfs/work9/workspace/scratch/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation/mmsegmentation/mmseg/models/builder.py:36: UserWarning: ``build_loss`` would be deprecated soon, please use ``mmseg.registry.MODELS.build()`` 
+  warnings.warn('``build_loss`` would be deprecated soon, please use '
+Number of parameters:  3720051
+Loads checkpoint by local backend from path: ../checkpoints/segformer/segformer_mit-b0_8xb2_1024x0124_160k_cityscapes_cp_cospgd_trained.pth
+[0010/500] valid_pix=18,275,842  cp_cov=0.9970
+[0020/500] valid_pix=36,370,005  cp_cov=0.9968
+[0030/500] valid_pix=54,438,113  cp_cov=0.9959
+[0040/500] valid_pix=72,191,091  cp_cov=0.9966
+[0050/500] valid_pix=90,504,824  cp_cov=0.9968
+[0060/500] valid_pix=108,334,181  cp_cov=0.9938
+[0070/500] valid_pix=126,512,440  cp_cov=0.9940
+[0080/500] valid_pix=144,245,225  cp_cov=0.9947
+[0090/500] valid_pix=162,015,395  cp_cov=0.9950
+[0100/500] valid_pix=179,619,406  cp_cov=0.9953
+[0110/500] valid_pix=197,884,800  cp_cov=0.9953
+[0120/500] valid_pix=216,021,987  cp_cov=0.9950
+[0130/500] valid_pix=233,984,793  cp_cov=0.9952
+[0140/500] valid_pix=252,173,373  cp_cov=0.9952
+[0150/500] valid_pix=269,878,290  cp_cov=0.9951
+[0160/500] valid_pix=288,080,467  cp_cov=0.9951
+[0170/500] valid_pix=306,276,314  cp_cov=0.9954
+[0180/500] valid_pix=323,922,406  cp_cov=0.9948
+[0190/500] valid_pix=341,710,275  cp_cov=0.9949
+[0200/500] valid_pix=359,470,562  cp_cov=0.9948
+[0210/500] valid_pix=377,792,522  cp_cov=0.9949
+[0220/500] valid_pix=395,981,967  cp_cov=0.9945
+[0230/500] valid_pix=414,249,308  cp_cov=0.9947
+[0240/500] valid_pix=431,737,017  cp_cov=0.9948
+[0250/500] valid_pix=449,288,743  cp_cov=0.9950
+[0260/500] valid_pix=467,416,996  cp_cov=0.9949
+[0270/500] valid_pix=486,139,434  cp_cov=0.9949
+[0280/500] valid_pix=505,338,888  cp_cov=0.9949
+[0290/500] valid_pix=522,140,543  cp_cov=0.9946
+[0300/500] valid_pix=540,695,264  cp_cov=0.9947
+[0310/500] valid_pix=557,790,270  cp_cov=0.9949
+[0320/500] valid_pix=570,748,914  cp_cov=0.9950
+[0330/500] valid_pix=589,367,469  cp_cov=0.9950
+[0340/500] valid_pix=608,594,720  cp_cov=0.9951
+[0350/500] valid_pix=627,598,960  cp_cov=0.9952
+[0360/500] valid_pix=647,024,821  cp_cov=0.9953
+[0370/500] valid_pix=666,376,786  cp_cov=0.9954
+[0380/500] valid_pix=685,686,382  cp_cov=0.9955
+[0390/500] valid_pix=705,131,393  cp_cov=0.9956
+[0400/500] valid_pix=724,214,004  cp_cov=0.9957
+[0410/500] valid_pix=743,679,512  cp_cov=0.9958
+[0420/500] valid_pix=762,988,668  cp_cov=0.9959
+[0430/500] valid_pix=782,500,649  cp_cov=0.9960
+[0440/500] valid_pix=801,806,603  cp_cov=0.9961
+[0450/500] valid_pix=821,401,355  cp_cov=0.9961
+[0460/500] valid_pix=840,014,561  cp_cov=0.9962
+[0470/500] valid_pix=859,468,613  cp_cov=0.9962
+[0480/500] valid_pix=877,904,115  cp_cov=0.9963
+[0490/500] valid_pix=897,470,736  cp_cov=0.9964
+[0500/500] valid_pix=916,636,241  cp_cov=0.9964
+
+Saved metrics to: ./work_dirs/cp_eval/train_4-test_2/metrics_cp_uncertainty.json
+{
+  "ece_style_conf_from_setsize": 0.19151879318577655,
+  "ece_style_bins": {
+    "set_size": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "bin_fraction": [
+      0.14538897333429784,
+      0.07324522203786617,
+      0.03151697664548264,
+      0.028956127646713896,
+      0.038582770807116716,
+      0.05497663276440321,
+      0.06818045611181546,
+      0.069709446497872,
+      0.0667404868623343,
+      0.06442315540085655,
+      0.06417172741918678,
+      0.06270066950145821,
+      0.06002389556404197,
+      0.05469050508553916,
+      0.0454072085941014,
+      0.033233280157859264,
+      0.023223042083495366,
+      0.012755165546634764,
+      0.002074257938924324
+    ],
+    "bin_accuracy": [
+      0.9986773198426441,
+      0.9776280855193071,
+      0.9594572137249515,
+      0.9380662955449571,
+      0.9157340904066875,
+      0.8774889433323384,
+      0.8451746642465486,
+      0.8072021115460128,
+      0.7880794875190246,
+      0.7552050333974293,
+      0.7195241022464827,
+      0.6782980203155857,
+      0.636233649105332,
+      0.5907657210318846,
+      0.5591533522994737,
+      0.5259552223465522,
+      0.4796437106786172,
+      0.39811537047995926,
+      0.345125017093208
+    ],
+    "bin_confidence": [
+      1.0,
+      0.9444444444444444,
+      0.8888888888888888,
+      0.8333333333333334,
+      0.7777777777777778,
+      0.7222222222222222,
+      0.6666666666666667,
+      0.6111111111111112,
+      0.5555555555555556,
+      0.5,
+      0.4444444444444444,
+      0.38888888888888884,
+      0.33333333333333337,
+      0.2777777777777778,
+      0.2222222222222222,
+      0.16666666666666663,
+      0.11111111111111116,
+      0.05555555555555558,
+      0.0
+    ]
+  },
+  "split": "val",
+  "num_classes": 19,
+  "ignore_index": 255,
+  "q_hat": 0.9993152618408203,
+  "alpha": 0.2,
+  "target_coverage_(1-alpha)": 0.8,
+  "total_valid_pixels": 916636241,
+  "top1_error_rate": 0.20807548891141867,
+  "cp_pixel_coverage_(y_in_set)": 0.996435782425059,
+  "cp_mean_set_size": 8.18577416578492,
+  "uncertainty_error_AUROC": 0.7772918788353247,
+  "uncertainty_error_AUPRC": 0.4366820258088296,
+  "risk_coverage_AURC": 0.07915243645307654
+}
+Saved plots to: ./work_dirs/cp_eval/train_4-test_2
+/var/spool/slurmd/job2613083/slurm_script: line 53: date +%s: command not found
+Runtime: 0
+
+============================= JOB FEEDBACK =============================
+
+NodeName=uc2n915
+Job ID: 2613083
+Cluster: uc3
+User/Group: ma_dschader/ma_ma
+State: COMPLETED (exit code 0)
+Nodes: 1
+Cores per node: 16
+CPU Utilized: 01:31:00
+CPU Efficiency: 6.21% of 1-00:25:04 core-walltime
+Job Wall-clock time: 01:31:34
+Memory Utilized: 1.46 GB
+Memory Efficiency: 12.15% of 12.00 GB (12.00 GB/node)

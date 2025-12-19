@@ -640,6 +640,7 @@ class EncoderDecoder(BaseSegmentor):
                 x_norm = normalize_fn(x)
                 
                 seg_logits = self.inference(x_norm, batch_img_metas)
+
                 self._attack_ctx = True
                 try:
                     loss_dict = self.loss(x_norm, data_samples)

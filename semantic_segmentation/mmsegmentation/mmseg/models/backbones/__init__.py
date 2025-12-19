@@ -26,7 +26,14 @@ from .vit import VisionTransformer
 from .vpd import VPD
 from .intern_image import InternImage
 from .onepeace_adapter import OnePeaceAdapter
-from .vit_dinov2 import DinoVisionBackbone
+
+try:
+    from .vit_dinov2 import DinoVisionBackbone
+    set_ = True
+except Exception:
+    import warnings
+    warnings.warn("DinoVisionBackbone import failed.")
+    set_ = False
 
 __all__ = [
     'ResNet', 'ResNetV1c', 'ResNetV1d', 'ResNeXt', 'HRNet', 'FastSCNN',
@@ -34,5 +41,8 @@ __all__ = [
     'VisionTransformer', 'SwinTransformer', 'MixVisionTransformer',
     'BiSeNetV1', 'BiSeNetV2', 'ICNet', 'TIMMBackbone', 'ERFNet', 'PCPVT',
     'SVT', 'STDCNet', 'STDCContextPathNet', 'BEiT', 'MAE', 'PIDNet', 'MSCAN',
-    'DDRNet', 'VPD', 'InternImage', 'OnePeaceAdapter', 'DinoVisionBackbone'
+    'DDRNet', 'VPD', 'InternImage', 'OnePeaceAdapter'
 ]
+
+if set_:
+    __all__.append('DinoVisionBackbone')

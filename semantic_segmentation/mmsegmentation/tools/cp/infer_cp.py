@@ -10,6 +10,7 @@ from mmseg.registry import DATASETS
 from mmengine.dataset import pseudo_collate
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
+from matplotlib import cm
 from pathlib import Path
 from PIL import Image
 import numpy as np
@@ -53,55 +54,138 @@ def compute_miou_per_image(pred, gt, num_classes, ignore_index=255):
         return float("nan")
     return float(np.mean(ious))
 
+# def save_seg_overlay(img_path, seg_pred, palette, alpha, out_folder, miou):
+#     """saves overlay: original image + color-coded segmentation with alpha blending."""
+#     img = np.array(Image.open(img_path).convert("RGB"))
+#     h, w = img.shape[:2]
+
+#     # seg_pred: [H,W] (int Labels)
+#     seg_pred = seg_pred.astype(np.int32)
+
+#     # if shapes don't match -> resize
+#     if seg_pred.shape != (h, w):
+#         seg_pred_img = Image.fromarray(seg_pred.astype(np.uint8), mode="L")
+#         seg_pred_img = seg_pred_img.resize((w, h), resample=Image.NEAREST)
+#         seg_pred = np.array(seg_pred_img)
+
+#     # palette: shape [num_classes, 3]
+#     palette = np.array(palette, dtype=np.uint8)
+#     color_mask = palette[seg_pred]   # [H,W,3]
+
+#     # Alphablending
+#     overlay = (1 - alpha) * img.astype(np.float32) + alpha * color_mask.astype(np.float32)
+#     overlay = overlay.clip(0, 255).astype(np.uint8)
+
+#     stem = Path(img_path).stem
+#     out_path = osp.join(out_folder, stem + "_seg_overlay.png")
+
+#     plt.figure(figsize=(10,5))
+#     plt.imshow(overlay)
+#     title = "Input Image with segmentation mask"
+#     title += "\n" + r"$\mathrm{mIoU} = " + f"{miou:.4f}$"
+#     plt.title(title)
+#     plt.tight_layout()
+#     plt.savefig(out_path)
+#     plt.close()
+#     print(f"saved segmentation overlay to {out_path}")
+
 def save_seg_overlay(img_path, seg_pred, palette, alpha, out_folder, miou):
-    """saves overlay: original image + color-coded segmentation with alpha blending."""
+    """Save overlay (RGB + color-coded mask) as pure image (no axes/title)."""
     img = np.array(Image.open(img_path).convert("RGB"))
     h, w = img.shape[:2]
 
-    # seg_pred: [H,W] (int Labels)
     seg_pred = seg_pred.astype(np.int32)
 
-    # if shapes don't match -> resize
+    # Resize prediction if needed
     if seg_pred.shape != (h, w):
         seg_pred_img = Image.fromarray(seg_pred.astype(np.uint8), mode="L")
         seg_pred_img = seg_pred_img.resize((w, h), resample=Image.NEAREST)
         seg_pred = np.array(seg_pred_img)
 
-    # palette: shape [num_classes, 3]
     palette = np.array(palette, dtype=np.uint8)
-    color_mask = palette[seg_pred]   # [H,W,3]
+    color_mask = palette[seg_pred]  # [H,W,3]
 
-    # Alphablending
     overlay = (1 - alpha) * img.astype(np.float32) + alpha * color_mask.astype(np.float32)
     overlay = overlay.clip(0, 255).astype(np.uint8)
 
     stem = Path(img_path).stem
-    out_path = osp.join(out_folder, stem + "_seg_overlay.png")
+    # mIoU in filename (4 decimals)
+    out_name = f"{stem}_miou={miou:.4f}_seg_overlay.png"
+    out_path = osp.join(out_folder, out_name)
 
-    plt.figure(figsize=(10,5))
-    plt.imshow(overlay)
-    title = "Input Image with segmentation mask"
-    title += "\n" + r"$\mathrm{mIoU} = " + f"{miou:.4f}$"
-    plt.title(title)
-    plt.tight_layout()
-    plt.savefig(out_path)
-    plt.close()
+    Image.fromarray(overlay).save(out_path)
     print(f"saved segmentation overlay to {out_path}")
 
-def save_heatmap(heatmap, img_meta, alpha, q_hat, out_folder):
-    plt.figure(figsize=(10,5))
+
+# def save_heatmap(heatmap, img_meta, alpha, q_hat, out_folder):
+#     plt.figure(figsize=(10,5))
+#     stem = Path(img_meta["img_path"]).stem
+#     im = plt.imshow(heatmap, cmap = "jet", vmin = 0, vmax = 1)
+#     title = rf"{stem}" + "\n "
+#     title += r"$\alpha_{\mathrm{cal}}=" +rf"{alpha}$"+", "
+#     title += r"$\hat{q}" + rf" = {round(q_hat, 8)}$"
+#     plt.title(title)
+#     plt.colorbar(im, label = "CP-uncertainty",fraction=0.064)
+#     plt.tight_layout()
+#     fname = osp.join(out_folder, stem + f"_qhat={q_hat}.png")
+#     plt.savefig(fname)
+#     print(f"saved heatmap to {fname}")
+#     plt.close()
+
+def save_heatmap(heatmap, img_meta, out_folder, cmap_name="jet"):
+    """
+    Save heatmap as a pure RGB image (no axes/title/colorbar).
+    heatmap is expected to be float array in [0,1].
+    """
+    heatmap = np.asarray(heatmap, dtype=np.float32)
+    heatmap = np.clip(heatmap, 0.0, 1.0)
+
+    cmap = cm.get_cmap(cmap_name)
+    rgba = cmap(heatmap)                  # [H,W,4] in 0..1
+    rgb = (rgba[..., :3] * 255.0).astype(np.uint8)
+
     stem = Path(img_meta["img_path"]).stem
-    im = plt.imshow(heatmap, cmap = "jet", vmin = 0, vmax = 1)
-    title = rf"{stem}" + "\n "
-    title += r"$\alpha_{\mathrm{cal}}=" +rf"{alpha}$"+", "
-    title += r"$\hat{q}" + rf" = {round(q_hat, 8)}$"
-    plt.title(title)
-    plt.colorbar(im, label = "CP-uncertainty",fraction=0.064)
-    plt.tight_layout()
-    fname = osp.join(out_folder, stem + f"_qhat={q_hat}.png")
-    plt.savefig(fname)
-    print(f"saved heatmap to {fname}")
-    plt.close()
+    out_name = f"{stem}_cp_uncertainty.png"
+    out_path = osp.join(out_folder, out_name)
+
+    Image.fromarray(rgb).save(out_path)
+    print(f"saved heatmap to {out_path}")
+
+def save_gt_overlay(img_path, gt_seg, palette, alpha, out_folder, ignore_index=255):
+    """Save ground-truth segmentation overlay (ignore pixels stay as original RGB)."""
+    img = np.array(Image.open(img_path).convert("RGB"))
+    h, w = img.shape[:2]
+
+    gt_seg = gt_seg.astype(np.int32)
+
+    # Resize GT if needed
+    if gt_seg.shape != (h, w):
+        gt_img = Image.fromarray(gt_seg.astype(np.uint8), mode="L")
+        gt_img = gt_img.resize((w, h), resample=Image.NEAREST)
+        gt_seg = np.array(gt_img).astype(np.int32)
+
+    palette = np.array(palette, dtype=np.uint8)
+
+    # valid pixels: 0..C-1 and not ignore
+    valid = (gt_seg != ignore_index) & (gt_seg >= 0) & (gt_seg < len(palette))
+
+    # start with "no overlay" everywhere
+    overlay = img.astype(np.float32)
+
+    # create color mask only for valid pixels
+    color_mask = np.zeros_like(img, dtype=np.uint8)
+    color_mask[valid] = palette[gt_seg[valid]]
+
+    # blend only on valid pixels
+    overlay[valid] = (1 - alpha) * img[valid].astype(np.float32) + alpha * color_mask[valid].astype(np.float32)
+    overlay = overlay.clip(0, 255).astype(np.uint8)
+
+    stem = Path(img_path).stem
+    out_name = f"{stem}_gt_overlay.png"
+    out_path = osp.join(out_folder, out_name)
+
+    Image.fromarray(overlay).save(out_path)
+    print(f"saved GT overlay to {out_path}")
 
 
 @torch.no_grad()
@@ -219,18 +303,33 @@ def main():
 
 
                 img_path = img_metas[b]["img_path"]
-                save_seg_overlay(img_path, seg_pred_np, palette,
-                                 alpha=args.overlay_alpha, out_folder=args.out, miou=miou)
-
+                if i == 1:
+                    save_seg_overlay(
+                            img_path=img_metas[b]["img_path"],
+                            seg_pred=seg_pred_np,
+                            palette=palette,
+                            alpha=0.5,
+                            out_folder=args.out,
+                            miou=miou
+                        )
+                    save_gt_overlay(img_path=img_metas[b]["img_path"],
+                                    gt_seg=gt_np,
+                                    palette=palette,
+                                    alpha=0.5,
+                                    out_folder=args.out,
+                                    ignore_index=255
+                                )
         if args.save_heatmaps:
             ss = set_size.float()
             num_classes = probs.size(1)
             ss = (ss - 1) / (num_classes - 1) # uncertainty normalized to [0,1] -> 0 equals set size 1, 1 equals set size = num_classes
             ss = ss.squeeze(dim=1)
             for b in range(ss.size(0)):
+                if i == 1:
+                    save_heatmap(ss[b].cpu().numpy(), img_metas[b], args.out)
+                # save_heatmap(ss[b].cpu().numpy(), img_metas[b], alpha, q_hat, args.out)
                 
-                save_heatmap(ss[b].cpu().numpy(), img_metas[b], alpha, q_hat, args.out)
-                
+                break
 
             # old code for saving heatmaps without normalization
             # for b in range(set_size.shape[0]):

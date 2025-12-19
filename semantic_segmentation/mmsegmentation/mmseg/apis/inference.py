@@ -17,6 +17,7 @@ from mmseg.structures import SegDataSample
 from mmseg.utils import SampleList, dataset_aliases, get_classes, get_palette
 from mmseg.visualization import SegLocalVisualizer
 from .utils import ImageType, _preprare_data
+from mmengine.dataset import Compose
 
 
 def init_model(config: Union[str, Path, Config],
@@ -93,6 +94,12 @@ def init_model(config: Union[str, Path, Config],
     model.eval()
     return model
 
+def _preprare_data_with_ann(model, img_path, ann_path):
+    cfg = model.cfg
+    data = dict(img_path=img_path, seg_map_path=ann_path)
+    pipeline = Compose(cfg.test_pipeline)
+    return pipeline(data)
+
 
 def inference_model(model: BaseSegmentor,
                     img: ImageType) -> Union[SegDataSample, SampleList]:
@@ -109,7 +116,7 @@ def inference_model(model: BaseSegmentor,
         will be returned, otherwise return the segmentation results directly.
     """
     # prepare data
-    data, is_batch = _preprare_data_with_ann(img, model) # _prepare_data
+    data, is_batch = _preprare_data(img, model) #  _preprare_data _preprare_data_with_ann
 
     # forward the model
     with torch.no_grad():

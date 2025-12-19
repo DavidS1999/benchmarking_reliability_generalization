@@ -2,18 +2,18 @@ from pathlib import Path
 import sys
 sys.path.append("/home/ma/ma_ma/ma_dschader/workspaces/pfs7wor9/ma_dschader-master-thesis/benchmarking_reliability_generalization/semantic_segmentation")
 
-from semsegbench.utils import get_args_parser
-from mmsegmentation.tools.test import main
-from mmseg.apis import init_model, inference_model, show_result_pyplot
-from mmseg.apis.utils import _preprare_data
-from torchmetrics.classification import MulticlassJaccardIndex
+# from semsegbench.utils import get_args_parser
+# from mmsegmentation.tools.test import main
+from mmseg.apis import init_model, inference_model #, show_result_pyplot
+# from mmseg.apis.utils import _preprare_data
+# from torchmetrics.classification import MulticlassJaccardIndex
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from glob import glob
 import numpy as np
-from mmseg.datasets.transforms import Compose
+from mmengine.dataset import Compose
 import pdb
 
 # from VALUES
@@ -41,7 +41,7 @@ def calculate_uncertainty(softmax_preds: torch.Tensor, ssn: bool = False):
     expected_entropy = torch.mean(expected_entropy, dim=0)
     mutual_information = pred_entropy - expected_entropy
 
-    # pdb.set_trace()
+    pdb.set_trace()
     n_classes = softmax_preds.shape[1]
     normalized_mi = mutual_information / torch.log(torch.tensor(n_classes, device = mutual_information.device))
 
@@ -62,9 +62,9 @@ def activate_dropout(model):
             layer.train()
 
 def plot_imshow(array, fig_name, fig_title = None):
-    plt.figure()
-    plt.imshow(array, cmap = "gray")
-    plt.colorbar()
+    plt.figure(figsize=(10,5))
+    plt.imshow(array, cmap = "jet")
+    plt.colorbar(fraction=0.064)
     plt.axis("off")
     if fig_title:
         plt.title(fig_title)
@@ -121,7 +121,7 @@ def _prepare_data_with_ann(model, img_path, ann_path):
 
 
 
-args = get_args_parser()
+# args = get_args_parser()
 config_path = Path("configs/segformer/segformer_mit-b0_8xb1-160k_cityscapes-1024x1024.py")
 checkpoint_path = Path("../checkpoints/segformer/segformer_mit-b0_8x1_1024x1024_160k_cityscapes_20211208_101857-e7f88502.pth")
 img_path = Path("data/cityscapes/leftImg8bit/test/berlin/berlin_000000_000019_leftImg8bit.png")
@@ -134,7 +134,7 @@ pdb.set_trace()
 result = inference_model(model, str(img_path))
 
 
-# uc_map, logits = get_uncertainty_map(model, img_path, return_logits = True)
+uc_map, logits = get_uncertainty_map(model, img_path, return_logits = True)
 
 acdc_path = Path("data/acdc/rgb_anno/test")
 cityscapes_path = Path("data/cityscapes/leftImg8bit/test/berlin")
