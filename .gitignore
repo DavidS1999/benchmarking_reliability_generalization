@@ -7,7 +7,6 @@ semantic_segmentation/checkpoints
 semantic_segmentation/data
 semantic_segmentation/slurm
 # semantic_segmentation/tests
-semantic_segmentation/work_dirs
 
 # C extensions
 *.so
@@ -17,3 +16,27 @@ semantic_segmentation/slurm
 
 # Distribution / packaging
 *.egg-info/
+
+# ---- work_dirs: track structure, ignore heavy artifacts ----
+!semantic_segmentation/mmsegmentation/work_dirs/
+semantic_segmentation/mmsegmentation/work_dirs/**
+
+# allow lightweight files (logs/configs) if you want
+!semantic_segmentation/mmsegmentation/work_dirs/**/*.log
+!semantic_segmentation/mmsegmentation/work_dirs/**/*.json
+!semantic_segmentation/mmsegmentation/work_dirs/**/*.yaml
+!semantic_segmentation/mmsegmentation/work_dirs/**/*.yml
+!semantic_segmentation/mmsegmentation/work_dirs/**/*.txt
+!semantic_segmentation/mmsegmentation/work_dirs/**/*.py
+!semantic_segmentation/mmsegmentation/work_dirs/**/*.md
+
+# ignore checkpoints / model weights
+semantic_segmentation/mmsegmentation/work_dirs/**/*.pth
+semantic_segmentation/mmsegmentation/work_dirs/**/*.pt
+semantic_segmentation/mmsegmentation/work_dirs/**/*.ckpt
+semantic_segmentation/mmsegmentation/work_dirs/**/*.onnx
+
+# ignore tensorboard + wandb etc.
+semantic_segmentation/mmsegmentation/work_dirs/**/tf_events.*
+semantic_segmentation/mmsegmentation/work_dirs/**/events.out.tfevents*
+semantic_segmentation/mmsegmentation/work_dirs/**/wandb/
