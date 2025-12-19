@@ -1,0 +1,8 @@
+name: semseg
+channels:
+  - conda-forge
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - python=3.10
+prefix: /pfs/work9/workspace/scratch/ma_dschader-master-thesis/miniconda3/envs/semseg

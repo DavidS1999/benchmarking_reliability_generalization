@@ -3,7 +3,7 @@ __pycache__/
 semantic_segmentation/aa_workdir
 semantic_segmentation/acdc_workdir
 semantic_segmentation/clean_workdir
-semantic_segmentation/checkpoints
+# semantic_segmentation/checkpoints
 semantic_segmentation/data
 semantic_segmentation/slurm
 # semantic_segmentation/tests
@@ -18,3 +18,6 @@ semantic_segmentation/slurm
 *.egg-info/
 
 *.pth
+!semantic_segmentation/checkpoints/segformer/segformer_mit-b0_8xb4_1024x1024_160k_cityscapes_cospgd_trained.pth
+!semantic_segmentation/checkpoints/segformer/segformer_mit-b0_8xb1_1024x1024_160k_cityscapes_cp_trained.pth 
+!semantic_segmentation/checkpoints/segformer/segformer_mit-b0_8xb2_1024x0124_160k_cityscapes_cp_cospgd_trained.pth
