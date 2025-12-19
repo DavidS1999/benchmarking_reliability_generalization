@@ -1,0 +1,8 @@
+{
+  "alpha": 0.4,
+  "city": "frankfurt",
+  "split": "val",
+  "randomized": false,
+  "q_hat": 0.9998999238014221,
+  "n_pixels": 480209992
+}

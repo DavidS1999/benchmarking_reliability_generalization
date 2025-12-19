@@ -1,0 +1,82 @@
+[
+  {
+    "image": "frankfurt_000000_000294_leftImg8bit",
+    "uncertainty": 0.0002713815192691982
+  },
+  {
+    "image": "frankfurt_000000_000576_leftImg8bit",
+    "uncertainty": 0.00016843524645082653
+  },
+  {
+    "image": "frankfurt_000000_001016_leftImg8bit",
+    "uncertainty": 0.00020211603259667754
+  },
+  {
+    "image": "frankfurt_000000_001236_leftImg8bit",
+    "uncertainty": 0.00030860971310175955
+  },
+  {
+    "image": "frankfurt_000000_001751_leftImg8bit",
+    "uncertainty": 0.0003486500936560333
+  },
+  {
+    "image": "frankfurt_000000_002196_leftImg8bit",
+    "uncertainty": 0.0002341003273613751
+  },
+  {
+    "image": "frankfurt_000000_002963_leftImg8bit",
+    "uncertainty": 0.0003309485618956387
+  },
+  {
+    "image": "frankfurt_000000_003025_leftImg8bit",
+    "uncertainty": 0.000508354336488992
+  },
+  {
+    "image": "frankfurt_000000_003357_leftImg8bit",
+    "uncertainty": 0.0004047451075166464
+  },
+  {
+    "image": "frankfurt_000000_003920_leftImg8bit",
+    "uncertainty": 0.00036325131077319384
+  },
+  {
+    "image": "frankfurt_000000_004617_leftImg8bit",
+    "uncertainty": 0.0003438862331677228
+  },
+  {
+    "image": "frankfurt_000000_005543_leftImg8bit",
+    "uncertainty": 0.0006722373655065894
+  },
+  {
+    "image": "frankfurt_000000_005898_leftImg8bit",
+    "uncertainty": 0.00040929007809609175
+  },
+  {
+    "image": "frankfurt_000000_006589_leftImg8bit",
+    "uncertainty": 0.0003628603299148381
+  },
+  {
+    "image": "frankfurt_000000_007365_leftImg8bit",
+    "uncertainty": 0.00026140775298699737
+  },
+  {
+    "image": "frankfurt_000000_008206_leftImg8bit",
+    "uncertainty": 0.0006006092298775911
+  },
+  {
+    "image": "frankfurt_000000_008451_leftImg8bit",
+    "uncertainty": 0.0005913591012358665
+  },
+  {
+    "image": "frankfurt_000000_009291_leftImg8bit",
+    "uncertainty": 0.000422632263507694
+  },
+  {
+    "image": "frankfurt_000000_009561_leftImg8bit",
+    "uncertainty": 0.0004133888578508049
+  },
+  {
+    "image": "frankfurt_000000_009688_leftImg8bit",
+    "uncertainty": 0.0003869915963150561
+  }
+]

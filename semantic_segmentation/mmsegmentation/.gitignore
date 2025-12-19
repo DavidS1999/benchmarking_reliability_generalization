@@ -117,27 +117,3 @@ mmseg/.mim
 
 # Pytorch
 *.pth
-
-# ---- work_dirs: track structure, ignore heavy artifacts ----
-!work_dirs/
-work_dirs/**
-
-# allow lightweight files (logs/configs) if you want
-!work_dirs/**/*.log
-!work_dirs/**/*.json
-!work_dirs/**/*.yaml
-!work_dirs/**/*.yml
-!work_dirs/**/*.txt
-!work_dirs/**/*.py
-!work_dirs/**/*.md
-
-# ignore checkpoints / model weights
-work_dirs/**/*.pth
-work_dirs/**/*.pt
-work_dirs/**/*.ckpt
-work_dirs/**/*.onnx
-
-# ignore tensorboard + wandb etc.
-work_dirs/**/tf_events.*
-work_dirs/**/events.out.tfevents*
-work_dirs/**/wandb/

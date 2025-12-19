@@ -1,0 +1,15 @@
+{
+  "split": "val",
+  "num_classes": 19,
+  "ignore_index": 255,
+  "q_hat": 0.9998999238014221,
+  "alpha": 0.4,
+  "target_coverage_(1-alpha)": 0.6,
+  "total_valid_pixels": 916636241,
+  "top1_error_rate": 0.05547704064648694,
+  "cp_pixel_coverage_(y_in_set)": 0.9979454347147071,
+  "cp_mean_set_size": 2.627879947635629,
+  "uncertainty_error_AUROC": 0.8590317652980276,
+  "uncertainty_error_AUPRC": 0.2540812192152749,
+  "risk_coverage_AURC": 0.009977193305752264
+}
